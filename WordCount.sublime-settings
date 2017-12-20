@@ -13,6 +13,9 @@
 	// Whether to skip whitespace for the character count.
 	"char_ignore_whitespace": true,
 
+	// Display the number of words in file
+	"enable_count_words": true,
+
 	// Display the number of lines in file
 	"enable_count_lines": true,
 

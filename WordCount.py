@@ -57,6 +57,7 @@ class Preferences():
         Preferences.enable_count_lines     = sublime_settings.get('enable_count_lines', False)
         Preferences.enable_count_chars     = sublime_settings.get('enable_count_chars', False)
         Preferences.enable_count_pages     = sublime_settings.get('enable_count_pages', True)
+        Preferences.enable_count_words     = sublime_settings.get('enable_count_words', True)
 
         Preferences.words_per_page         = sublime_settings.get('words_per_page', 300)
         Preferences.char_ignore_whitespace = sublime_settings.get('char_ignore_whitespace', True)
@@ -127,8 +128,9 @@ class WordCountView():
         self.view    = view
         self.content = ""
 
-        self.char_count   = 0
-        self.line_count   = 0
+        self.char_count = 0
+        self.word_count = 0
+        self.line_count = 0
 
     def updateViewContents(self):
         self.content = self.view.substr( sublime.Region( 0, self.view.size() ) )
@@ -140,7 +142,9 @@ class WordCountView():
         self.updateViewContents()
 
         view = self.view
-        self.word_count = count_words( self.content )
+
+        if Preferences.enable_count_words:
+            self.word_count = count_words( self.content )
 
         if Preferences.enable_count_chars:
 
@@ -195,7 +199,8 @@ def display(view, word_count, char_count, line_count):
     if line_count > 1:
         status.append( '%d Lines' % line_count )
 
-    status.append( '%d Words' % word_count )
+    if Preferences.enable_count_words:
+        status.append( '%d Words' % word_count )
 
     if char_count > 1:
         status.append( '%d Chars' % char_count )
