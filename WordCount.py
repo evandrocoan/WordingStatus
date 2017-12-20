@@ -41,6 +41,31 @@ def start_word_count():
         sublime.set_timeout_async( configure_word_count, 2000 )
 
 
+def configure_word_count():
+    WordsCount.countView = WordsCount.setUpView( get_active_view() )
+
+    thread = threading.Thread( target=word_count_loop )
+    thread.start()
+
+
+def word_count_loop():
+    mininum_time = Preferences.mininum_time
+
+    while True:
+
+        # Stops the thread when the plugin is reloaded or unloaded
+        if not g_is_already_running:
+            break
+
+        # sleep time is adaptive, if takes more than 0.4 to calculate the word count, sleep_time
+        # becomes elapsed_time*3
+        if not Preferences.is_already_running:
+            WordsCount.doCounting()
+
+        # print( "word_count_loop, elapsed_time: %f microseconds" % ( Preferences.elapsed_time * 1000 ) )
+        time.sleep( ( Preferences.elapsed_time*3 if Preferences.elapsed_time > mininum_time else mininum_time ) )
+
+
 class Preferences():
 
     @staticmethod
@@ -140,9 +165,8 @@ class WordCountView():
         Preferences.start_time = time.perf_counter()
         Preferences.is_already_running = True
 
-        self.updateViewContents()
-
         view = self.view
+        self.updateViewContents()
 
         if Preferences.enable_count_words:
             self.word_count = count_words( self.content )
@@ -165,31 +189,6 @@ class WordCountView():
 
         Preferences.elapsed_time = time.perf_counter() - Preferences.start_time
         Preferences.is_already_running = False
-
-
-def configure_word_count():
-    WordsCount.countView = WordsCount.setUpView( get_active_view() )
-
-    thread = threading.Thread( target=word_count_loop )
-    thread.start()
-
-
-def word_count_loop():
-    mininum_time = Preferences.mininum_time
-
-    while True:
-
-        # Stops the thread when the plugin is reloaded or unloaded
-        if not g_is_already_running:
-            break
-
-        # sleep time is adaptive, if takes more than 0.4 to calculate the word count, sleep_time
-        # becomes elapsed_time*3
-        if not Preferences.is_already_running:
-            WordsCount.doCounting()
-
-        # print( "word_count_loop, elapsed_time: %f microseconds" % ( Preferences.elapsed_time * 1000 ) )
-        time.sleep( ( Preferences.elapsed_time*3 if Preferences.elapsed_time > mininum_time else mininum_time ) )
 
 
 def display(view, word_count, char_count, line_count):
