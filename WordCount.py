@@ -1,6 +1,11 @@
-import sublime, sublime_plugin, re
+
+import sublime
+import sublime_plugin
+
+import re
 import time
 import threading
+
 from math import ceil as ceil
 from os.path import basename
 
@@ -71,9 +76,7 @@ class Preferences():
         for window in sublime.windows():
 
             for view in window.views():
-
                 view.erase_status('WordCountStatus');
-                view.settings().erase('WordCountStatus')
 
 
 class WordsCount(sublime_plugin.EventListener):
@@ -119,8 +122,6 @@ class WordsCount(sublime_plugin.EventListener):
 class WordCountView():
 
     def __init__(self, view):
-        threading.Thread.__init__(self)
-
         # We need to set it to -1, because by default it starts on 0. Then we for an update when a
         # view is first activated by `WordsCount::on_activated_async()`
         self.change_count = -1
