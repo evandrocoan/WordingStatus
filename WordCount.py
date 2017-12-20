@@ -90,8 +90,10 @@ class WordCount(sublime_plugin.EventListener):
 	def on_modified_async(self, view):
 		vs = view.settings()
 		ws = vs.get('WordCount', wsd)
-		ws['modified'] = True
-		vs.set('WordCount', ws)
+
+		if vs:
+			ws['modified'] = True
+			vs.set('WordCount', ws)
 
 	def on_selection_modified_async(self, view):
 		vs = view.settings()
