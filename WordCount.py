@@ -4,305 +4,250 @@ import threading
 from math import ceil as ceil
 from os.path import basename
 
-Preferences      = {}
-sublime_settings = {}
+Preferences = {}
+g_is_already_running = False
 
-default_word_count_settings = {'modified':True, 'selection':True, 'syntax':'plain text','changes':-1,'status':-1}
+
+def plugin_unloaded():
+    global g_is_already_running
+    g_is_already_running = False
+
+    sublime_settings.clear_on_change('WordCount')
 
 
 def plugin_loaded():
-    global sublime_settings, Preferences
-    sublime_settings = sublime.load_settings('WordCount.sublime-settings')
+    sublime.set_timeout_async( start_word_count, 2000 )
 
-    Preferences = Preferences()
+
+def start_word_count():
+    global Preferences
+    global sublime_settings
+
+    sublime_settings = sublime.load_settings( 'WordCount.sublime-settings' )
     Preferences.load();
 
-    sublime_settings.clear_on_change('reload')
-    sublime_settings.add_on_change('reload', lambda:Preferences.load())
+    sublime_settings.clear_on_change( 'WordCount' )
+    sublime_settings.add_on_change( 'WordCount', lambda: Preferences.load() )
 
-    if not 'running_word_count_loop' in globals():
-        global running_word_count_loop
-        running_word_count_loop = True
+    global g_is_already_running
 
-        thread = threading.Thread(target=word_count_loop)
-        thread.start()
+    if not g_is_already_running:
+        g_is_already_running = True
+        sublime.set_timeout_async( configure_word_count, 2000 )
 
 
-class Preferences:
-    def load(self):
-        Preferences.view                   = False
-        Preferences.elapsed_time           = 0.4
-        Preferences.running                = False
+class Preferences():
 
-        Preferences.wrdRx                  = re.compile(sublime_settings.get('word_regexp', "^[^\w]?`*\w+[^\w]*$"), re.U)
-        Preferences.wrdRx                  = Preferences.wrdRx.match
-        Preferences.splitRx                = sublime_settings.get('word_split', None)
-        if Preferences.splitRx:
-            Preferences.splitRx            = re.compile(Preferences.splitRx, re.U)
-            Preferences.splitRx            = Preferences.splitRx.findall
+    @staticmethod
+    def load():
+        Preferences.mininum_time           = 1.4
+        Preferences.elapsed_time           = 1.4
+        Preferences.is_already_running     = False
+
+        Preferences.wordRegex              = re.compile( sublime_settings.get('word_regexp', "^[^\w]?`*\w+[^\w]*$"), re.U )
+        Preferences.wordRegex              = Preferences.wordRegex.match
+        Preferences.splitRegex             = sublime_settings.get('word_split', None)
+
+        if Preferences.splitRegex:
+            Preferences.splitRegex         = re.compile(Preferences.splitRegex, re.U)
+            Preferences.splitRegex         = Preferences.splitRegex.findall
 
         Preferences.enable_live_count      = sublime_settings.get('enable_live_count', True)
         Preferences.enable_readtime        = sublime_settings.get('enable_readtime', False)
-        Preferences.enable_line_word_count = sublime_settings.get('enable_line_word_count', False)
-        Preferences.enable_line_char_count = sublime_settings.get('enable_line_char_count', False)
         Preferences.enable_count_lines     = sublime_settings.get('enable_count_lines', False)
         Preferences.enable_count_chars     = sublime_settings.get('enable_count_chars', False)
         Preferences.enable_count_pages     = sublime_settings.get('enable_count_pages', True)
 
         Preferences.words_per_page         = sublime_settings.get('words_per_page', 300)
-        Preferences.page_count_mode_count_words = sublime_settings.get('page_count_mode_count_words', True)
         Preferences.char_ignore_whitespace = sublime_settings.get('char_ignore_whitespace', True)
         Preferences.readtime_wpm           = sublime_settings.get('readtime_wpm', 200)
         Preferences.whitelist              = [x.lower() for x in sublime_settings.get('whitelist_syntaxes', []) or []]
         Preferences.blacklist              = [x.lower() for x in sublime_settings.get('blacklist_syntaxes', []) or []]
         Preferences.strip                  = sublime_settings.get('strip', [])
 
+        Preferences.page_count_mode_count_words = sublime_settings.get('page_count_mode_count_words', True)
+
         for window in sublime.windows():
 
             for view in window.views():
 
-                view.erase_status('WordsCount');
-                view.settings().erase('WordsCount')
+                view.erase_status('WordCountStatus');
+                view.settings().erase('WordCountStatus')
 
 
 class WordsCount(sublime_plugin.EventListener):
 
-    def should_run_with_syntax(self, view):
-        view_settings = view.settings()
-
-        syntax = view_settings.get('syntax')
-        syntax = basename(syntax).split('.')[0].lower() if syntax != None else "plain text"
-
-        wordCountSettings = view_settings.get('WordsCount', default_word_count_settings)
-        wordCountSettings['syntax'] = syntax
-        view_settings.set('WordsCount', wordCountSettings)
-
-        if len(Preferences.blacklist) > 0:
-
-            for white in Preferences.blacklist:
-
-                if white == syntax:
-                    view.erase_status('WordsCount');
-                    return False
-
-        if len(Preferences.whitelist) > 0:
-
-            for white in Preferences.whitelist:
-
-                if white == syntax:
-                    return True
-
-            view.erase_status('WordsCount');
-            return False
-
-        return True
-
-    def on_activated_async(self, view):
-        self.asap(view)
-
-    def on_post_save_async(self, view):
-        self.asap(view)
-
-    def on_modified_async(self, view):
-        view_settings     = view.settings()
-        wordCountSettings = view_settings.get('WordsCount', default_word_count_settings)
-
-        if view_settings:
-            wordCountSettings['modified'] = True
-            view_settings.set('WordsCount', wordCountSettings)
-
-    def on_selection_modified_async(self, view):
-        view_settings     = view.settings()
-        wordCountSettings = view_settings.get('WordsCount', default_word_count_settings)
-
-        wordCountSettings['selection'] = True
-        view_settings.set('WordsCount', wordCountSettings)
+    countView = None
+    wordCountViews = {}
 
     def on_close(self, view):
-        Preferences.view = False
+        view_id = view.id()
 
-    def asap(self, view):
-        Preferences.view = view
-        Preferences.elapsed_time = 0.4
-        sublime.set_timeout(lambda:WordsCount().run(True), 0)
+        if view_id in self.wordCountViews:
+            del self.wordCountViews[view_id]
 
-    def run(self, asap = False):
-        if not Preferences.view:
-            self.guess_view()
+    def on_activated_async(self, view):
+        # print( "on_activated_async, view_id: %d" % view.id() )
+        WordsCount.countView = WordsCount.setUpView( view )
+        WordsCount.doCounting()
 
-        else:
-            view = Preferences.view
-            view_settings = view.settings()
-            wordCountSettings = view_settings.get('WordsCount', default_word_count_settings)
+    @staticmethod
+    def setUpView(view):
+        view_settings  = view.settings()
+        wordCountViews = WordsCount.wordCountViews
 
-            if view_settings.get('is_widget') or not wordCountSettings: # (if not wordCountSettings)WTF, happens when closing a view
-                self.guess_view()
+        if view_settings.get('is_widget'):
+            view = get_active_view()
 
-            else:
+        view_id = view.id()
+        # print( "setUpView, view_id: %d" % view_id )
 
-                if (wordCountSettings['modified'] or wordCountSettings['selection']) and (Preferences.running == False or asap) and self.should_run_with_syntax(view):
-                    sel = view.sel()
+        if view_id not in wordCountViews:
+            wordCountViews[view_id] = WordCountView( view )
 
-                    if sel:
+        return wordCountViews[view_id]
 
-                        if len(sel) == 1 and sel[0].empty():
+    @staticmethod
+    def doCounting():
+        countView = WordsCount.countView
 
-                            if not Preferences.enable_live_count or view.size() > 10485760:
-                                view.erase_status('WordsCount')
-
-                            elif view.change_count() != wordCountSettings['changes']:
-
-                                wordCountSettings['changes'] = view.change_count()
-                                #  print('running:'+str(view.change_count()))
-                                WordCountThread(view, [view.substr(sublime.Region(0, view.size()))], view.substr(view.line(view.sel()[0].end())), False).start()
-
-                        else:
-
-                            try:
-                                WordCountThread(view, [view.substr(sublime.Region(sublime_settings.begin(), sublime_settings.end())) for sublime_settings in sel], view.substr(view.line(view.sel()[0].end())), True).start()
-                            except:
-                                pass
-
-                        wordCountSettings['modified'] = False
-                        wordCountSettings['selection'] = False
-                        view_settings.set('WordsCount', wordCountSettings)
-
-    def guess_view(self):
-        if sublime.active_window() and sublime.active_window().active_view():
-            Preferences.view = sublime.active_window().active_view()
-
-    def display(self, view, on_selection, word_count, char_count, word_count_line, char_count_line):
-        status  = []
-        minutes = int(word_count / Preferences.readtime_wpm)
-        seconds = int(word_count % Preferences.readtime_wpm / (Preferences.readtime_wpm / 60))
-
-        if Preferences.enable_count_lines:
-            lines = (view.rowcol(view.size())[0] + 1)
-
-            if lines > 1:
-                status.append('%d Lines' % (view.rowcol(view.size())[0] + 1))
-
-        if word_count:
-            status.append(self.makePlural('Word', word_count))
-
-        if Preferences.enable_count_chars and char_count > 0:
-            status.append(self.makePlural('Char', char_count))
-
-        if Preferences.enable_line_word_count and word_count_line > 1:
-            status.append( "%d Words in Line" % (word_count_line))
-
-        if Preferences.enable_line_char_count and char_count_line > 1:
-            status.append("%d Chars in Line" % (char_count_line))
-
-        if Preferences.enable_count_pages and word_count > 0:
-
-            if not Preferences.page_count_mode_count_words or Preferences.words_per_page < 1:
-                visible = view.visible_region()
-                rows_per_page = (view.rowcol(visible.end())[0]) - (view.rowcol(visible.begin())[0])
-                pages = ceil((view.rowcol(view.size()-1)[0] + 1 ) /  rows_per_page)
-                current_line = view.rowcol(view.sel()[0].begin())[0]+1
-                current_page = ceil(current_line / rows_per_page)
-            else:
-                pages = ceil(word_count / Preferences.words_per_page)
-                rows = view.rowcol(view.size()-1)[0] + 1
-                current_line = view.rowcol(view.sel()[0].begin())[0]+1
-                current_page = ceil((current_line / Preferences.words_per_page) / (rows / Preferences.words_per_page))
-
-            if pages > 1:
-                if current_page != 0:
-                    status.append('Page '+str(current_page)+'/'+str(pages))
-                else:
-                    status.append('Page '+str(current_page)+'/'+str(pages))
-
-        if Preferences.enable_readtime and seconds >= 1:
-            status.append("~%dm %ds reading time" % (minutes, seconds))
-
-        view.set_status('WordsCount', ', '.join(status))
-        # print( "2. Setting status to: " + ', '.join(status) )
-
-    def makePlural(self, word, count):
-        return "%s %s%s" % (count, word, ("s" if count != 1 else ""))
+        if countView.view.change_count() != countView.change_count:
+            countView.startCounting()
 
 
-class WordCountThread(threading.Thread):
+class WordCountView():
 
-    def __init__(self, view, content, content_line, on_selection):
+    def __init__(self, view):
         threading.Thread.__init__(self)
-        self.view = view
-        self.content = content
-        self.content_line = content_line
-        self.on_selection = on_selection
 
-        self.char_count = 0
-        self.word_count_line = 0
-        self.chars_in_line = 0
+        # We need to set it to -1, because by default it starts on 0. Then we for an update when a
+        # view is first activated by `WordsCount::on_activated_async()`
+        self.change_count = -1
 
-        wordCountSettings = view.settings().get('WordsCount', default_word_count_settings)
-        self.syntax = wordCountSettings['syntax']
+        self.view    = view
+        self.content = ""
 
-    def run(self):
-        # print ('running:'+str(time.time()))
-        Preferences.running = True
+        self.char_count   = 0
+        self.line_count   = 0
 
-        if self.syntax and self.syntax in Preferences.strip:
-            for item in Preferences.strip[self.syntax]:
-                for k in range(len(self.content)):
-                    self.content[k] = re.sub(item, '', self.content[k])
-                self.content_line = re.sub(item, '', self.content_line)
+    def updateViewContents(self):
+        self.content = self.view.substr( sublime.Region( 0, self.view.size() ) )
 
-        self.word_count = sum([self.count(region) for region in self.content])
+    def startCounting(self):
+        Preferences.start_time = time.perf_counter()
+        Preferences.is_already_running = True
+
+        self.updateViewContents()
+
+        view = self.view
+        self.word_count = count_words( self.content )
 
         if Preferences.enable_count_chars:
+
             if Preferences.char_ignore_whitespace:
-                self.char_count = sum([len(''.join(region.split())) for region in self.content])
+                self.char_count = len( ''.join( self.content.split() ) )
+
             else:
-                self.char_count = sum([len(region) for region in self.content])
+                self.char_count = len( self.content )
 
-        if Preferences.enable_line_word_count:
-            self.word_count_line = self.count(self.content_line)
+        if Preferences.enable_count_lines:
+            self.line_count = view.rowcol( view.size() )[0] + 1
 
-        if Preferences.enable_line_char_count:
-            if Preferences.char_ignore_whitespace:
-                self.chars_in_line = len(''.join(self.content_line.split()))
-            else:
-                self.chars_in_line = len(self.content_line)
+        self.displayCountResults()
 
-        if not self.on_selection:
-            view_settings = self.view.settings()
-            wordCountSettings = view_settings.get('WordsCount', default_word_count_settings)
-            wordCountSettings['count'] = self.word_count
-            view_settings.set('WordsCount', wordCountSettings)
+    def displayCountResults(self):
+        display( self.view, self.word_count, self.char_count, self.line_count )
 
-        sublime.set_timeout(lambda:self.on_done(), 0)
+        Preferences.elapsed_time = time.perf_counter() - Preferences.start_time
+        Preferences.is_already_running = False
 
-    def on_done(self):
-        try:
-            WordsCount().display(self.view, self.on_selection, self.word_count, self.char_count, self.word_count_line, self.chars_in_line)
-        except:
-            pass
-        Preferences.running = False
 
-    def count(self, content):
-        wrdRx = Preferences.wrdRx
-        splitRx = Preferences.splitRx
+def configure_word_count():
+    WordsCount.countView = WordsCount.setUpView( get_active_view() )
 
-        if splitRx:
-            words = len([1 for x in splitRx(content) if not x.isdigit() and wrdRx(x)])
-
-        else:
-            words = len([1 for x in content.replace("'", '').replace('—', ' ').replace('–', ' ').replace('-', ' ').split()
-                        if not x.isdigit() and wrdRx(x)])
-
-        return words
+    thread = threading.Thread( target=word_count_loop )
+    thread.start()
 
 
 def word_count_loop():
-    word_count = WordsCount().run
+    mininum_time = Preferences.mininum_time
 
     while True:
-        # sleep time is adaptive, if takes more than 0.4 to calculate the word count
-        # sleep_time becomes elapsed_time*3
-        if Preferences.running == False:
-            sublime.set_timeout(lambda:word_count(), 0)
-        time.sleep((Preferences.elapsed_time*3 if Preferences.elapsed_time > 0.4 else 0.4))
+
+        # Stops the thread when the plugin is reloaded or unloaded
+        if not g_is_already_running:
+            break
+
+        # sleep time is adaptive, if takes more than 0.4 to calculate the word count, sleep_time
+        # becomes elapsed_time*3
+        if not Preferences.is_already_running:
+            WordsCount.doCounting()
+
+        # print( "word_count_loop, elapsed_time: %f microseconds" % ( Preferences.elapsed_time * 1000 ) )
+        time.sleep( ( Preferences.elapsed_time*3 if Preferences.elapsed_time > mininum_time else mininum_time ) )
+
+
+def display(view, word_count, char_count, line_count):
+    status  = []
+    minutes = int( word_count / Preferences.readtime_wpm )
+    seconds = int( word_count % Preferences.readtime_wpm / ( Preferences.readtime_wpm / 60 ) )
+
+    if line_count > 1:
+        status.append( '%d Lines' % line_count )
+
+    status.append( '%d Words' % word_count )
+
+    if char_count > 1:
+        status.append( '%d Chars' % char_count )
+
+    if Preferences.enable_count_pages and word_count > 0:
+
+        if not Preferences.page_count_mode_count_words or Preferences.words_per_page < 1:
+            visible = view.visible_region()
+            rows_per_page = (view.rowcol(visible.end())[0]) - (view.rowcol(visible.begin())[0])
+            pages = ceil((view.rowcol(view.size()-1)[0] + 1 ) /  rows_per_page)
+            current_line = view.rowcol(view.sel()[0].begin())[0]+1
+            current_page = ceil(current_line / rows_per_page)
+
+        else:
+            pages = ceil(word_count / Preferences.words_per_page)
+            rows = view.rowcol(view.size()-1)[0] + 1
+            current_line = view.rowcol(view.sel()[0].begin())[0]+1
+            current_page = ceil((current_line / Preferences.words_per_page) / (rows / Preferences.words_per_page))
+
+        if pages > 1:
+
+            if current_page != 0:
+                status.append('Page '+str(current_page)+'/'+str(pages))
+
+            else:
+                status.append('Page '+str(current_page)+'/'+str(pages))
+
+    if Preferences.enable_readtime and seconds >= 1:
+        status.append("~%dm %ds reading time" % (minutes, seconds))
+
+    view.set_status('WordCountStatus', ', '.join(status))
+    # print( "view: %d, Setting status to: " % view.id() + ', '.join( status) )
+
+
+def count_words(text):
+    wordRegex  = Preferences.wordRegex
+    splitRegex = Preferences.splitRegex
+
+    if splitRegex:
+        words = len( [ 1 for x in splitRegex(text) if not x.isdigit() and wordRegex(x) ] )
+
+    else:
+        words = len( [ 1 for x in text.split() if not x.isdigit() and wordRegex(x) ] )
+
+    return words
+
+
+def get_active_view():
+    window = sublime.active_window()
+
+    if window:
+         return window.active_view()
+
+    return None
 

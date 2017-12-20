@@ -10,12 +10,6 @@
 	// enabled for selections only.
 	"enable_live_count": true,
 
-	// Display the count of words found on current line.
-	"enable_line_word_count": false,
-
-	// Display the count of characters found on current line.
-	"enable_line_char_count": false,
-
 	// Whether to skip whitespace for the character count.
 	"char_ignore_whitespace": true,
 
@@ -46,16 +40,6 @@
 	// will be used.
 	"word_split": "",
 
-	// An array of syntax names that WordCount should run on. Example:
-	// ["Plain text", "Markdown"] If the array is empty, like it is by default,
-	// WordCount will run on any syntax.
-	"whitelist_syntaxes": [],
-
-	// An array of syntax names that WordCount should not run on.
-	// Example: ["Plain text", "Markdown"]
-	// If the array is empty, like it is by default, WordCount will run on any syntax.
-	"blacklist_syntaxes": [],
-
 	// Remove regex patterns by syntax. Use lowercase for the syntax names.
 	// Example to ignore all tags, including comments, from HTML:
 	// "strip": {
@@ -64,11 +48,15 @@
 	// 	]
 	// }
 	// Please use lowercase for the syntax names in the following section:
-	"strip": {
-		"php": [
+	"strip":
+	{
+		"php":
+		[
 			"<[^>]*>"
 		],
-		"html": [
+
+		"html":
+		[
 			"<[^>]*>"
 		]
 	}
