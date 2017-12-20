@@ -17,14 +17,10 @@ def plugin_unloaded():
     global g_is_already_running
     g_is_already_running = False
 
-    sublime_settings.clear_on_change('WordCount')
+    sublime_settings.clear_on_change( 'WordCount' )
 
 
 def plugin_loaded():
-    sublime.set_timeout_async( start_word_count, 2000 )
-
-
-def start_word_count():
     global Preferences
     global sublime_settings
 
@@ -38,6 +34,8 @@ def start_word_count():
 
     if not g_is_already_running:
         g_is_already_running = True
+
+        # Wait the Preferences class to be loaded
         sublime.set_timeout_async( configure_word_count, 2000 )
 
 
@@ -115,9 +113,23 @@ class WordsCount(sublime_plugin.EventListener):
         if view_id in self.wordCountViews:
             del self.wordCountViews[view_id]
 
+    def on_selection_modified_async(self, view):
+
+        if Preferences.enable_count_words:
+            selections = view.sel()
+            WordsCount.setUpView( view )
+
+            for selection in selections:
+
+                if len( selection ):
+                    WordsCount.countView.is_text_selected = True
+                    return
+
+            WordsCount.countView.is_text_selected = False
+
     def on_activated_async(self, view):
         # print( "on_activated_async, view_id: %d" % view.id() )
-        WordsCount.countView = WordsCount.setUpView( view )
+        WordsCount.setUpView( view )
         WordsCount.doCounting()
 
     @staticmethod
@@ -134,19 +146,25 @@ class WordsCount(sublime_plugin.EventListener):
         if view_id not in wordCountViews:
             wordCountViews[view_id] = WordCountView( view )
 
-        return wordCountViews[view_id]
+        WordsCount.countView = wordCountViews[view_id]
 
     @staticmethod
     def doCounting():
         countView = WordsCount.countView
 
-        if countView.view.change_count() != countView.change_count:
-            countView.startCounting()
+        if countView:
+
+            if countView.view.change_count() != countView.change_count \
+                    or countView.is_text_selected:
+
+                countView.startCounting()
 
 
 class WordCountView():
 
     def __init__(self, view):
+        self.is_text_selected = False
+
         # We need to set it to -1, because by default it starts on 0. Then we for an update when a
         # view is first activated by `WordsCount::on_activated_async()`
         self.change_count = -1
@@ -159,7 +177,19 @@ class WordCountView():
         self.line_count = 0
 
     def updateViewContents(self):
-        self.content = self.view.substr( sublime.Region( 0, self.view.size() ) )
+        view = self.view
+
+        if self.is_text_selected:
+            contents = []
+            selections = view.sel()
+
+            for selection in selections:
+                contents.append( view.substr( selection ) )
+
+            self.content = " ".join( contents )
+
+        else:
+            self.content = view.substr( sublime.Region( 0, view.size() ) )
 
     def startCounting(self):
         Preferences.start_time = time.perf_counter()
@@ -180,7 +210,12 @@ class WordCountView():
                 self.char_count = len( self.content )
 
         if Preferences.enable_count_lines:
-            self.line_count = view.rowcol( view.size() )[0] + 1
+
+            if self.is_text_selected:
+                self.line_count = 0
+
+            else:
+                self.line_count = view.rowcol( view.size() )[0] + 1
 
         self.displayCountResults()
 
@@ -202,7 +237,9 @@ def display(view, word_count, char_count, line_count):
     if Preferences.enable_count_words:
         status.append( '%d Words' % word_count )
 
-    if char_count > 1:
+    if char_count > 1 \
+            and line_count > 1:
+
         status.append( '%d Chars' % char_count )
 
     if Preferences.enable_count_pages and word_count > 0:
