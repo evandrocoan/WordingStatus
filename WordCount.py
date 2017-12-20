@@ -115,7 +115,7 @@ class WordsCount(sublime_plugin.EventListener):
         view_settings     = view.settings()
         wordCountSettings = view_settings.get('WordsCount', default_word_count_settings)
 
-        wordCountSettings['selection'] =  True
+        wordCountSettings['selection'] = True
         view_settings.set('WordsCount', wordCountSettings)
 
     def on_close(self, view):
@@ -283,26 +283,6 @@ class WordCountThread(threading.Thread):
         Preferences.running = False
 
     def count(self, content):
-
-        # begin = time.time()
-
-        #=====1
-        # wrdRx = Preferences.wrdRx
-        # """counts by counting all the start-of-word characters"""
-        # # regex to find word characters
-        # matchingWrd = False
-        # words = 0
-        # space_symbols = [' ', '\r', '\n']
-        # for ch in content:
-        # #     # test if this char is a word char
-        #   isWrd = ch not in space_symbols
-        #   if isWrd and not matchingWrd:
-        #       words = words + 1
-        #       matchingWrd = True
-        #   if not isWrd:
-        #       matchingWrd = False
-
-        #=====2
         wrdRx = Preferences.wrdRx
         splitRx = Preferences.splitRx
 
@@ -312,9 +292,6 @@ class WordCountThread(threading.Thread):
         else:
             words = len([1 for x in content.replace("'", '').replace('—', ' ').replace('–', ' ').replace('-', ' ').split()
                         if not x.isdigit() and wrdRx(x)])
-
-        # Preferences.elapsed_time = end = time.time() - begin;
-        # print ('Benchmark: '+str(end))
 
         return words
 
