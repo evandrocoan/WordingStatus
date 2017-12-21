@@ -1,17 +1,7 @@
 {
-	// Sets the WPM to calculate the Estimated Reading Time for the file.
-	"readtime_wpm": 200,
-
 	// Allows you to control if the estimated reading time is enabled.
 	// Reading time is only displayed when there is a time > 1s.
 	"enable_readtime": false,
-
-	// Allows to control if the live word counter is enabled. Otherwise will be
-	// enabled for selections only.
-	"enable_live_count": true,
-
-	// Whether to skip whitespace for the character count.
-	"char_ignore_whitespace": true,
 
 	// Display the number of words in file
 	"enable_count_words": true,
@@ -28,6 +18,12 @@
 	// Sets the number of words per page used to calculate number of pages
 	"words_per_page": 360,
 
+	// Sets the WPM to calculate the Estimated Reading Time for the file.
+	"readtime_wpm": 200,
+
+	// Whether to skip whitespace for the character count.
+	"char_ignore_whitespace": true,
+
 	// Sets the page count mode to words per page
 	"page_count_mode_count_words": false,
 
@@ -42,25 +38,4 @@
 	// containing some value different than empty, the return of "re.findall"
 	// will be used.
 	"word_split": "",
-
-	// Remove regex patterns by syntax. Use lowercase for the syntax names.
-	// Example to ignore all tags, including comments, from HTML:
-	// "strip": {
-	// 	"html": [
-	// 		"<[^>]*>"
-	// 	]
-	// }
-	// Please use lowercase for the syntax names in the following section:
-	"strip":
-	{
-		"php":
-		[
-			"<[^>]*>"
-		],
-
-		"html":
-		[
-			"<[^>]*>"
-		]
-	}
 }

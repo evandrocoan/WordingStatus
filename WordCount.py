@@ -80,19 +80,15 @@ class Preferences():
             Preferences.splitRegex         = re.compile(Preferences.splitRegex, re.U)
             Preferences.splitRegex         = Preferences.splitRegex.findall
 
-        Preferences.enable_live_count      = sublime_settings.get('enable_live_count', True)
         Preferences.enable_readtime        = sublime_settings.get('enable_readtime', False)
         Preferences.enable_count_lines     = sublime_settings.get('enable_count_lines', False)
         Preferences.enable_count_chars     = sublime_settings.get('enable_count_chars', False)
         Preferences.enable_count_pages     = sublime_settings.get('enable_count_pages', True)
         Preferences.enable_count_words     = sublime_settings.get('enable_count_words', True)
 
+        Preferences.readtime_wpm           = sublime_settings.get('readtime_wpm', 200)
         Preferences.words_per_page         = sublime_settings.get('words_per_page', 300)
         Preferences.char_ignore_whitespace = sublime_settings.get('char_ignore_whitespace', True)
-        Preferences.readtime_wpm           = sublime_settings.get('readtime_wpm', 200)
-        Preferences.whitelist              = [x.lower() for x in sublime_settings.get('whitelist_syntaxes', []) or []]
-        Preferences.blacklist              = [x.lower() for x in sublime_settings.get('blacklist_syntaxes', []) or []]
-        Preferences.strip                  = sublime_settings.get('strip', [])
 
         Preferences.page_count_mode_count_words = sublime_settings.get('page_count_mode_count_words', True)
 
@@ -110,8 +106,8 @@ class WordsCount(sublime_plugin.EventListener):
     def on_close(self, view):
         view_id = view.id()
 
-        if view_id in self.wordCountViews:
-            del self.wordCountViews[view_id]
+        if view_id in WordsCount.wordCountViews:
+            del WordsCount.wordCountViews[view_id]
 
     def on_selection_modified_async(self, view):
 
