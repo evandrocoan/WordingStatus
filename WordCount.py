@@ -9,15 +9,21 @@ import threading
 from math import ceil as ceil
 from os.path import basename
 
-Preferences = {}
+Preferences  = {}
+g_sleepEvent = threading.Event()
 g_is_already_running = False
 
 
 def plugin_unloaded():
     global g_is_already_running
-    g_is_already_running = False
 
+    g_is_already_running = False
     sublime_settings.clear_on_change( 'WordCount' )
+
+    for window in sublime.windows():
+
+        for view in window.views():
+            view.erase_status('WordCountStatus');
 
 
 def plugin_loaded():
@@ -30,17 +36,27 @@ def plugin_loaded():
     sublime_settings.clear_on_change( 'WordCount' )
     sublime_settings.add_on_change( 'WordCount', lambda: Preferences.load() )
 
-    global g_is_already_running
-
     if not g_is_already_running:
-        g_is_already_running = True
+        g_sleepEvent.set()
 
         # Wait the Preferences class to be loaded
-        sublime.set_timeout_async( configure_word_count, 2000 )
+        sublime.set_timeout_async( configure_word_count, 5000 )
 
 
 def configure_word_count():
-    WordsCount.countView = WordsCount.setUpView( get_active_view() )
+    """
+        break/interrupt a time.sleep() in python
+        https://stackoverflow.com/questions/5114292/break-interrupt-a-time-sleep-in-python
+    """
+    global g_is_already_running
+    g_is_already_running = True
+
+    # Initialize the WordsCount's countView attribute
+    WordsCount.setUpView( get_active_view() )
+
+    # Reset the internal flag to false. Subsequently, threads calling wait() will block until set()
+    # is called to set the internal flag to true again.
+    g_sleepEvent.clear()
 
     thread = threading.Thread( target=word_count_loop )
     thread.start()
@@ -50,18 +66,17 @@ def word_count_loop():
     mininum_time = Preferences.mininum_time
 
     while True:
+        # sleep time is adaptive, if takes more than `mininum_time` to calculate the word count,
+        # sleep_time becomes `elapsed_time*3`
+        if not Preferences.is_already_running:
+            WordsCount.doCounting()
 
         # Stops the thread when the plugin is reloaded or unloaded
         if not g_is_already_running:
             break
 
-        # sleep time is adaptive, if takes more than 0.4 to calculate the word count, sleep_time
-        # becomes elapsed_time*3
-        if not Preferences.is_already_running:
-            WordsCount.doCounting()
-
         # print( "word_count_loop, elapsed_time: %f microseconds" % ( Preferences.elapsed_time * 1000 ) )
-        time.sleep( ( Preferences.elapsed_time*3 if Preferences.elapsed_time > mininum_time else mininum_time ) )
+        g_sleepEvent.wait( Preferences.elapsed_time*3 if Preferences.elapsed_time > mininum_time else mininum_time )
 
 
 class Preferences():
@@ -83,7 +98,7 @@ class Preferences():
         Preferences.enable_readtime        = sublime_settings.get('enable_readtime', False)
         Preferences.enable_count_lines     = sublime_settings.get('enable_count_lines', False)
         Preferences.enable_count_chars     = sublime_settings.get('enable_count_chars', False)
-        Preferences.enable_count_pages     = sublime_settings.get('enable_count_pages', True)
+        Preferences.enable_count_pages     = sublime_settings.get('enable_count_pages', False)
         Preferences.enable_count_words     = sublime_settings.get('enable_count_words', True)
 
         Preferences.readtime_wpm           = sublime_settings.get('readtime_wpm', 200)
@@ -91,11 +106,6 @@ class Preferences():
         Preferences.char_ignore_whitespace = sublime_settings.get('char_ignore_whitespace', True)
 
         Preferences.page_count_mode_count_words = sublime_settings.get('page_count_mode_count_words', True)
-
-        for window in sublime.windows():
-
-            for view in window.views():
-                view.erase_status('WordCountStatus');
 
 
 class WordsCount(sublime_plugin.EventListener):
@@ -113,7 +123,6 @@ class WordsCount(sublime_plugin.EventListener):
 
         if Preferences.enable_count_words:
             selections = view.sel()
-            WordsCount.setUpView( view )
 
             for selection in selections:
 
