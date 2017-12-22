@@ -66,14 +66,14 @@ def word_count_loop():
     mininum_time = Preferences.mininum_time
 
     while True:
+        # Stops the thread when the plugin is reloaded or unloaded
+        if not g_is_already_running:
+            break
+
         # sleep time is adaptive, if takes more than `mininum_time` to calculate the word count,
         # sleep_time becomes `elapsed_time*3`
         if not Preferences.is_already_running:
             WordsCount.doCounting()
-
-        # Stops the thread when the plugin is reloaded or unloaded
-        if not g_is_already_running:
-            break
 
         # print( "word_count_loop, elapsed_time: %f microseconds" % ( Preferences.elapsed_time * 1000 ) )
         g_sleepEvent.wait( Preferences.elapsed_time*3 if Preferences.elapsed_time > mininum_time else mininum_time )
