@@ -157,12 +157,10 @@ class WordsCount(sublime_plugin.EventListener):
     def doCounting():
         countView = WordsCount.countView
 
-        if countView:
+        if countView.view.change_count() != countView.change_count \
+                or countView.is_text_selected:
 
-            if countView.view.change_count() != countView.change_count \
-                    or countView.is_text_selected:
-
-                countView.startCounting()
+            countView.startCounting()
 
 
 class WordCountView():
