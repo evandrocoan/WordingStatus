@@ -63,7 +63,8 @@ def configure_word_count():
 
 
 def word_count_loop():
-    mininum_time = Preferences.mininum_time
+    mininum_time = 0.01
+    default_time = 3.0
 
     while True:
         # Stops the thread when the plugin is reloaded or unloaded
@@ -76,14 +77,13 @@ def word_count_loop():
             WordsCount.doCounting()
 
         # print( "word_count_loop, elapsed_time: %f microseconds" % ( Preferences.elapsed_time * 1000 ) )
-        g_sleepEvent.wait( Preferences.elapsed_time*3 if Preferences.elapsed_time > mininum_time else mininum_time )
+        g_sleepEvent.wait( Preferences.elapsed_time*100 if Preferences.elapsed_time > mininum_time else default_time )
 
 
 class Preferences():
 
     @staticmethod
     def load():
-        Preferences.mininum_time           = 1.4
         Preferences.elapsed_time           = 1.4
         Preferences.is_already_running     = False
 
