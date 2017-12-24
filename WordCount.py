@@ -36,6 +36,9 @@ def plugin_loaded():
     sublime_settings.clear_on_change( 'WordCount' )
     sublime_settings.add_on_change( 'WordCount', lambda: Preferences.load() )
 
+    # Initialize the WordsCount's countView attribute
+    WordsCount.setUpView( get_active_view() )
+
     if not g_is_already_running:
         g_sleepEvent.set()
 
@@ -50,9 +53,6 @@ def configure_word_count():
     """
     global g_is_already_running
     g_is_already_running = True
-
-    # Initialize the WordsCount's countView attribute
-    WordsCount.setUpView( get_active_view() )
 
     # Reset the internal flag to false. Subsequently, threads calling wait() will block until set()
     # is called to set the internal flag to true again.
@@ -173,7 +173,7 @@ class WordCountView():
         self.change_count = -1
 
         self.view    = view
-        self.content = ""
+        self.content = []
 
         self.char_count = 0
         self.word_count = 0
@@ -183,16 +183,14 @@ class WordCountView():
         view = self.view
 
         if self.is_text_selected:
-            contents = []
+            del self.content[:]
             selections = view.sel()
 
             for selection in selections:
-                contents.append( view.substr( selection ) )
-
-            self.content = " ".join( contents )
+                self.content.append( view.substr( selection ) )
 
         else:
-            self.content = view.substr( sublime.Region( 0, view.size() ) )
+            self.content = [view.substr( sublime.Region( 0, view.size() ) )]
 
     def startCounting(self):
         Preferences.start_time = time.perf_counter()
@@ -275,17 +273,28 @@ def display(view, word_count, char_count, line_count):
     # print( "view: %d, Setting status to: " % view.id() + ', '.join( status) )
 
 
-def count_words(text):
+def count_words(text_list):
+    words_count = 0
+
     wordRegex  = Preferences.wordRegex
     splitRegex = Preferences.splitRegex
 
     if splitRegex:
-        words = len( [ 1 for x in splitRegex(text) if not x.isdigit() and wordRegex(x) ] )
+
+        for text in text_list:
+            words = splitRegex( text )
+
+            for word in words:
+
+                if wordRegex( word ):
+                    words_count += 1
 
     else:
-        words = len( [ 1 for x in text.split() if not x.isdigit() and wordRegex(x) ] )
 
-    return words
+        for text in text_list:
+            words_count = len( text.split() )
+
+    return words_count
 
 
 def get_active_view():
