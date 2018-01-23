@@ -10,7 +10,7 @@
 	"enable_count_lines": true,
 
 	// Display the number of characters in file
-	"enable_count_chars": false,
+	"enable_count_chars": true,
 
 	// Display the number of pages in file
 	"enable_count_pages": false,

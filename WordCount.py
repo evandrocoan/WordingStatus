@@ -171,8 +171,8 @@ class WordCountView():
         # view is first activated by `WordsCount::on_activated_async()`
         self.change_count = -1
 
-        self.view    = view
-        self.content = []
+        self.view     = view
+        self.contents = []
 
         self.char_count = 0
         self.word_count = 0
@@ -182,14 +182,14 @@ class WordCountView():
         view = self.view
 
         if self.is_text_selected:
-            del self.content[:]
+            del self.contents[:]
             selections = view.sel()
 
             for selection in selections:
-                self.content.append( view.substr( selection ) )
+                self.contents.append( view.substr( selection ) )
 
         else:
-            self.content = [view.substr( sublime.Region( 0, view.size() ) )]
+            self.contents = [view.substr( sublime.Region( 0, view.size() ) )]
 
     def startCounting(self):
         Preferences.start_time = time.perf_counter()
@@ -199,15 +199,15 @@ class WordCountView():
         self.updateViewContents()
 
         if Preferences.enable_count_words:
-            self.word_count = count_words( self.content )
+            self.word_count = count_words( self.contents )
 
         if Preferences.enable_count_chars:
 
             if Preferences.char_ignore_whitespace:
-                self.char_count = len( ''.join( self.content.split() ) )
+                self.char_count = sum( sum( len( word ) for word in words.split() ) for words in self.contents )
 
             else:
-                self.char_count = len( self.content )
+                self.char_count = sum( len( words ) for words in self.contents )
 
         if Preferences.enable_count_lines:
 
