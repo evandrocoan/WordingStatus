@@ -7,7 +7,6 @@ import time
 import threading
 
 from math import ceil as ceil
-from os.path import basename
 
 Preferences  = {}
 g_sleepEvent = threading.Event()
