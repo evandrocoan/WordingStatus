@@ -291,7 +291,7 @@ def count_words(text_list):
     else:
 
         for text in text_list:
-            words_count = len( text.split() )
+            words_count += len( text.split() )
 
     return words_count
 
