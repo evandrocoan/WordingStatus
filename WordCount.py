@@ -130,9 +130,11 @@ class WordsCount(sublime_plugin.EventListener):
         if Preferences.enable_count_words:
             selections = view.sel()
 
-            if len( selections ):
-                WordsCount.countView.is_text_selected = True
-                return
+            for selection in selections:
+
+                if len( selection ):
+                    WordsCount.countView.is_text_selected = True
+                    return
 
             WordsCount.countView.is_text_selected = False
 
@@ -219,6 +221,8 @@ class WordCountView():
         self.char_count_line = 0
 
     def updateViewContents(self):
+        del self.contents[:]
+
         view = self.view
         selections = view.sel()
 
@@ -229,13 +233,12 @@ class WordCountView():
                 self.lines_contents.append( view.substr( view.line( selection.end() ) ) )
 
         if self.is_text_selected:
-            del self.contents[:]
 
             for selection in selections:
                 self.contents.append( view.substr( selection ) )
 
         else:
-            self.contents = [view.substr( sublime.Region( 0, view.size() ) )]
+            self.contents.append( view.substr( sublime.Region( 0, view.size() ) ) )
 
     def startCounting(self):
 
@@ -330,8 +333,9 @@ def display(view, word_count, char_count, line_count, word_count_line, char_coun
     if Preferences.enable_readtime and seconds >= 1:
         status.append("~%dm %ds reading time" % (minutes, seconds))
 
-    view.set_status('WordCountStatus', ', '.join(status))
-    # print( "view: %d, Setting status to: " % view.id() + ', '.join( status) )
+    status_text = ', '.join( status )
+    view.set_status( 'WordCountStatus', status_text )
+    # print( "view: %d, Setting status to: " % view.id() + status_text )
 
 
 def count_words(text_list):
