@@ -27,6 +27,22 @@
 	// Sets the page count mode to words per page
 	"page_count_mode_count_words": false,
 
+	// Display the count of words found on current line.
+	"enable_line_word_count": false,
+
+	// Display the count of characters found on current line.
+	"enable_line_char_count": false,
+
+	// An array of syntax names that WordCount should run on.
+	// Example: ["Plain text", "Markdown"]
+	// If the array is empty, like it is by default, WordCount will run on any syntax.
+	"whitelist_syntaxes": [],
+
+	// An array of syntax names that WordCount should not run on.
+	// Example: ["Plain text", "Markdown"]
+	// If the array is empty, like it is by default, WordCount will run on any syntax.
+	"blacklist_syntaxes": [],
+
 	// Word Regular expression. Defaults empty, an internal regular expression
 	// is used. If the portion of text matches this RegExp then the word is
 	// counted.
@@ -38,4 +54,21 @@
 	// containing some value different than empty, the return of "re.findall"
 	// will be used.
 	"word_split": "",
+
+	// Remove regex patterns by syntax. Split portions of text to test later as
+	// words with a Regular expression. Defaults to String.split() with no
+	// arguments, means that content will trim() and empty values (all
+	// whitespaces) are not used. In case of containing some value different
+	// than empty, the return of "re.findall" will be used.
+	//
+	// Please use lowercase for the syntax names in the following section:
+	"strip": {
+		// Example to ignore all tags, including comments, from HTML.
+		"html": [
+			"<[^>]*>",
+		],
+		"php": [
+			"<[^>]*>",
+		],
+	}
 }

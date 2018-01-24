@@ -7,6 +7,7 @@ import time
 import threading
 
 from math import ceil as ceil
+from os.path import basename
 
 Preferences  = {}
 g_sleepEvent = threading.Event()
@@ -100,9 +101,15 @@ class Preferences():
         Preferences.enable_count_pages     = sublime_settings.get('enable_count_pages', False)
         Preferences.enable_count_words     = sublime_settings.get('enable_count_words', True)
 
+        Preferences.enable_line_word_count = sublime_settings.get('enable_line_word_count', False)
+        Preferences.enable_line_char_count = sublime_settings.get('enable_line_char_count', False)
+
         Preferences.readtime_wpm           = sublime_settings.get('readtime_wpm', 200)
         Preferences.words_per_page         = sublime_settings.get('words_per_page', 300)
         Preferences.char_ignore_whitespace = sublime_settings.get('char_ignore_whitespace', True)
+        Preferences.whitelist_syntaxes     = sublime_settings.get('whitelist_syntaxes', [])
+        Preferences.blacklist_syntaxes     = sublime_settings.get('blacklist_syntaxes', [])
+        Preferences.strip                  = sublime_settings.get('strip', [])
 
         Preferences.page_count_mode_count_words = sublime_settings.get('page_count_mode_count_words', True)
 
@@ -123,11 +130,9 @@ class WordsCount(sublime_plugin.EventListener):
         if Preferences.enable_count_words:
             selections = view.sel()
 
-            for selection in selections:
-
-                if len( selection ):
-                    WordsCount.countView.is_text_selected = True
-                    return
+            if len( selections ):
+                WordsCount.countView.is_text_selected = True
+                return
 
             WordsCount.countView.is_text_selected = False
 
@@ -136,21 +141,50 @@ class WordsCount(sublime_plugin.EventListener):
         WordsCount.setUpView( view )
         WordsCount.doCounting()
 
-    @staticmethod
-    def setUpView(view):
-        view_settings  = view.settings()
-        wordCountViews = WordsCount.wordCountViews
+    @classmethod
+    def setUpView(cls, view):
+        view_settings = view.settings()
+        wordCountViews = cls.wordCountViews
 
         if view_settings.get('is_widget'):
             view = get_active_view()
+            view_settings = view.settings()
 
+        syntax, is_enabled = cls.should_run_with_syntax( view_settings )
         view_id = view.id()
+
         # print( "setUpView, view_id: %d" % view_id )
+        if view_id in wordCountViews:
+            wordCountViews[view_id].syntax = syntax
+            wordCountViews[view_id].syntax = is_enabled
 
-        if view_id not in wordCountViews:
-            wordCountViews[view_id] = WordCountView( view )
+        else:
+            wordCountViews[view_id] = WordCountView( view, syntax, is_enabled )
 
-        WordsCount.countView = wordCountViews[view_id]
+        cls.countView = wordCountViews[view_id]
+
+    @staticmethod
+    def should_run_with_syntax(view_settings):
+        syntax = view_settings.get('syntax')
+        syntax = basename( syntax ).split( '.' )[0].lower() if syntax != None else "plain text"
+
+        if len( Preferences.blacklist_syntaxes ) > 0:
+
+            for white in Preferences.blacklist_syntaxes:
+
+                if white == syntax:
+                    return syntax, False
+
+        if len(Preferences.whitelist_syntaxes) > 0:
+
+            for white in Preferences.whitelist_syntaxes:
+
+                if white == syntax:
+                    return syntax, True
+
+            return syntax, False
+
+        return syntax, True
 
     @staticmethod
     def doCounting():
@@ -164,12 +198,15 @@ class WordsCount(sublime_plugin.EventListener):
 
 class WordCountView():
 
-    def __init__(self, view):
+    def __init__(self, view, syntax, is_enabled):
+        self.syntax = syntax
+        self.is_enabled = is_enabled
         self.is_text_selected = False
 
         # We need to set it to -1, because by default it starts on 0. Then we for an update when a
         # view is first activated by `WordsCount::on_activated_async()`
-        self.change_count = -1
+        self.change_count   = -1
+        self.lines_contents = []
 
         self.view     = view
         self.contents = []
@@ -178,12 +215,21 @@ class WordCountView():
         self.word_count = 0
         self.line_count = 0
 
+        self.word_count_line = 0
+        self.char_count_line = 0
+
     def updateViewContents(self):
         view = self.view
+        selections = view.sel()
+
+        if Preferences.enable_line_char_count or Preferences.enable_line_word_count:
+            del self.lines_contents[:]
+
+            for selection in selections:
+                self.lines_contents.append( view.substr( view.line( selection.end() ) ) )
 
         if self.is_text_selected:
             del self.contents[:]
-            selections = view.sel()
 
             for selection in selections:
                 self.contents.append( view.substr( selection ) )
@@ -192,55 +238,71 @@ class WordCountView():
             self.contents = [view.substr( sublime.Region( 0, view.size() ) )]
 
     def startCounting(self):
+
+        if not self.is_enabled:
+            return
+
         Preferences.start_time = time.perf_counter()
         Preferences.is_already_running = True
 
         view = self.view
         self.updateViewContents()
 
+        if self.syntax and self.syntax in Preferences.strip:
+
+            for regular_expression in Preferences.strip[self.syntax]:
+                lines_count = len( self.contents )
+                lines_contents_count = len( self.lines_contents )
+
+                for selection_index in range( lines_count ):
+                    self.contents[selection_index] = re.sub( regular_expression, '', self.contents[selection_index] )
+
+                for selection_index in range( lines_contents_count ):
+                    self.lines_contents[selection_index] = re.sub( regular_expression, '', self.lines_contents[selection_index] )
+
+        if Preferences.enable_count_lines:
+            self.line_count = view.rowcol( view.size() )[0] + 1
+
         if Preferences.enable_count_words:
             self.word_count = count_words( self.contents )
 
         if Preferences.enable_count_chars:
+            self.char_count = count_chars( self.contents )
 
-            if Preferences.char_ignore_whitespace:
-                self.char_count = sum( sum( len( word ) for word in words.split() ) for words in self.contents )
+        if Preferences.enable_line_char_count:
+            self.char_count_line = count_chars( self.lines_contents )
 
-            else:
-                self.char_count = sum( len( words ) for words in self.contents )
-
-        if Preferences.enable_count_lines:
-
-            if self.is_text_selected:
-                self.line_count = 0
-
-            else:
-                self.line_count = view.rowcol( view.size() )[0] + 1
+        if Preferences.enable_line_word_count:
+            self.word_count_line = count_words( self.lines_contents )
 
         self.displayCountResults()
 
     def displayCountResults(self):
-        display( self.view, self.word_count, self.char_count, self.line_count )
+        display( self.view, self.word_count, self.char_count, self.line_count, self.word_count_line, self.char_count_line )
 
         Preferences.elapsed_time = time.perf_counter() - Preferences.start_time
         Preferences.is_already_running = False
 
 
-def display(view, word_count, char_count, line_count):
+def display(view, word_count, char_count, line_count, word_count_line, char_count_line):
     status  = []
     minutes = int( word_count / Preferences.readtime_wpm )
     seconds = int( word_count % Preferences.readtime_wpm / ( Preferences.readtime_wpm / 60 ) )
 
-    if line_count > 1:
+    if line_count > 0:
         status.append( '%d Lines' % line_count )
 
-    if Preferences.enable_count_words:
+    if word_count > 0:
         status.append( '%d Words' % word_count )
 
-    if char_count > 1 \
-            and line_count > 1:
-
+    if char_count > 0:
         status.append( '%d Chars' % char_count )
+
+    if word_count_line > 0:
+        status.append( "%d Words in line" % ( word_count_line ) )
+
+    if char_count_line > 0:
+        status.append("%d Chars in line" % ( char_count_line ) )
 
     if Preferences.enable_count_pages and word_count > 0:
 
@@ -294,6 +356,18 @@ def count_words(text_list):
             words_count += len( text.split() )
 
     return words_count
+
+
+def count_chars(text_list):
+    char_count = 0
+
+    if Preferences.char_ignore_whitespace:
+        char_count = sum( sum( len( word ) for word in words.split() ) for words in text_list )
+
+    else:
+        char_count = sum( len( words ) for words in text_list )
+
+    return char_count
 
 
 def get_active_view():
