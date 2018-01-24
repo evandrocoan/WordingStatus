@@ -166,13 +166,15 @@ class WordsCount(sublime_plugin.EventListener):
 
         # print( "setUpView, view_id: %d" % view_id )
         if view_id in wordCountViews:
-            wordCountViews[view_id].syntax = syntax
-            wordCountViews[view_id].syntax = is_enabled
+            wordCountView = wordCountViews[view_id]
+            wordCountView.syntax = syntax
+            wordCountView.syntax = is_enabled
 
         else:
-            wordCountViews[view_id] = WordCountView( view, syntax, is_enabled )
+            wordCountView = WordCountView( view, syntax, is_enabled )
+            wordCountViews[view_id] = wordCountView
 
-        cls.countView = wordCountViews[view_id]
+        cls.countView = wordCountView
 
     @staticmethod
     def should_run_with_syntax(view_settings):
