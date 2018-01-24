@@ -222,10 +222,8 @@ class WordCountView():
         self.word_count_line = 0
         self.char_count_line = 0
 
-    def updateViewContents(self):
+    def updateViewContents(self, view):
         del self.contents[:]
-
-        view = self.view
         selections = view.sel()
 
         if Preferences.enable_line_char_count or Preferences.enable_line_word_count:
@@ -251,7 +249,7 @@ class WordCountView():
         Preferences.is_already_running = True
 
         view = self.view
-        self.updateViewContents()
+        self.updateViewContents( view )
 
         if self.syntax and self.syntax in Preferences.strip:
 
