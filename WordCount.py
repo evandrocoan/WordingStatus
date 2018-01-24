@@ -291,23 +291,22 @@ class WordCountView():
 
 def display(view, word_count, char_count, line_count, word_count_line, char_count_line):
     status  = []
-    minutes = int( word_count / Preferences.readtime_wpm )
     seconds = int( word_count % Preferences.readtime_wpm / ( Preferences.readtime_wpm / 60 ) )
 
     if line_count > 0:
-        status.append( '%d Lines' % line_count )
+        status.append( "{:,} Lines".format( line_count ).replace( ',', '.' ) )
 
     if word_count > 0:
-        status.append( '%d Words' % word_count )
+        status.append( "{:,} Words".format( word_count ).replace( ',', '.' ) )
 
     if char_count > 0:
-        status.append( '%d Chars' % char_count )
+        status.append( "{:,} Chars".format( char_count ).replace( ',', '.' ) )
 
     if word_count_line > 0:
-        status.append( "%d Words in line" % ( word_count_line ) )
+        status.append( "{:,} Words in line".format( word_count_line ).replace( ',', '.' ) )
 
     if char_count_line > 0:
-        status.append("%d Chars in line" % ( char_count_line ) )
+        status.append( "{:,} Chars in line".format( char_count_line ).replace( ',', '.' ) )
 
     if Preferences.enable_count_pages and word_count > 0:
 
@@ -325,15 +324,11 @@ def display(view, word_count, char_count, line_count, word_count_line, char_coun
             current_page = ceil((current_line / Preferences.words_per_page) / (rows / Preferences.words_per_page))
 
         if pages > 1:
-
-            if current_page != 0:
-                status.append('Page '+str(current_page)+'/'+str(pages))
-
-            else:
-                status.append('Page '+str(current_page)+'/'+str(pages))
+            status.append( "Page {:,}/{:,}".format( current_page, pages ).replace( ',', '.' ) )
 
     if Preferences.enable_readtime and seconds >= 1:
-        status.append("~%dm %ds reading time" % (minutes, seconds))
+        minutes = int( word_count / Preferences.readtime_wpm )
+        status.append( "~{:,}m {:,}s reading time".format( minutes, seconds ).replace( ',', '.' ) )
 
     status_text = ', '.join( status )
     view.set_status( 'WordCountStatus', status_text )
