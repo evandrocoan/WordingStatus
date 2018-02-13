@@ -158,9 +158,10 @@ class WordsCount(sublime_plugin.EventListener):
         wordCountViews = cls.wordCountViews
 
         if view_settings.get('is_widget'):
-            view = get_active_view()
+            _view = get_active_view()
 
-            if view:
+            if _view:
+                view = _view
                 view_settings = view.settings()
 
         syntax, is_enabled = cls.should_run_with_syntax( view_settings )
