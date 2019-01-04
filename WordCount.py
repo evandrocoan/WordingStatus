@@ -233,7 +233,7 @@ class WordCountView():
         view_size = view.size()
 
         file_size_limit = self.view.settings().get( 'file_size_limit', VIEW_SIZE_LIMIT )
-        is_limited = view_size > file_size_limit
+        is_limited = view_size > ( file_size_limit if file_size_limit else VIEW_SIZE_LIMIT )
 
         if Preferences.enable_line_char_count or Preferences.enable_line_word_count:
             del self.lines_contents[:]
