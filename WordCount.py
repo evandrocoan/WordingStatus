@@ -9,6 +9,8 @@ import threading
 from math import ceil as ceil
 from os.path import basename
 
+VIEW_SIZE_LIMIT = 4194304
+
 Preferences  = {}
 g_sleepEvent = threading.Event()
 g_is_already_running = False
@@ -228,6 +230,10 @@ class WordCountView():
     def updateViewContents(self, view):
         del self.contents[:]
         selections = view.sel()
+        view_size = view.size()
+
+        file_size_limit = self.view.settings().get( 'file_size_limit', VIEW_SIZE_LIMIT )
+        is_limited = view_size > file_size_limit
 
         if Preferences.enable_line_char_count or Preferences.enable_line_word_count:
             del self.lines_contents[:]
@@ -235,13 +241,16 @@ class WordCountView():
             for selection in selections:
                 self.lines_contents.append( view.substr( view.line( selection.end() ) ) )
 
+        if is_limited:
+            self.is_text_selected = False
+
         if self.is_text_selected:
 
             for selection in selections:
                 self.contents.append( view.substr( selection ) )
 
         else:
-            self.contents.append( view.substr( sublime.Region( 0, view.size() ) ) )
+            self.contents.append( view.substr( sublime.Region( 0, file_size_limit if is_limited else view_size ) ) )
 
     def startCounting(self):
 
