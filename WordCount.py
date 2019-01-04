@@ -232,14 +232,16 @@ class WordCountView():
         selections = view.sel()
         view_size = view.size()
 
-        file_size_limit = self.view.settings().get( 'file_size_limit', VIEW_SIZE_LIMIT )
-        is_limited = view_size > ( file_size_limit if file_size_limit else VIEW_SIZE_LIMIT )
-
         if Preferences.enable_line_char_count or Preferences.enable_line_word_count:
             del self.lines_contents[:]
 
             for selection in selections:
                 self.lines_contents.append( view.substr( view.line( selection.end() ) ) )
+
+        # view.settings().get('setting_name', 10) return None randomly for a single time
+        # https://github.com/SublimeTextIssues/Core/issues/2548
+        file_size_limit = self.view.settings().get( 'file_size_limit', VIEW_SIZE_LIMIT )
+        is_limited = view_size > ( file_size_limit if file_size_limit else VIEW_SIZE_LIMIT )
 
         if is_limited:
             self.is_text_selected = False
