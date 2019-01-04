@@ -18,6 +18,9 @@
 	// Sets the number of words per page used to calculate number of pages
 	"words_per_page": 360,
 
+	// The maximum characters a file to be computed can have
+	"file_size_limit": 4194304,
+
 	// Sets the WPM to calculate the Estimated Reading Time for the file.
 	"readtime_wpm": 200,
 

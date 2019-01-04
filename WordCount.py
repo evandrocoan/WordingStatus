@@ -102,6 +102,7 @@ class Preferences():
         Preferences.enable_count_chars     = sublime_settings.get('enable_count_chars', False)
         Preferences.enable_count_pages     = sublime_settings.get('enable_count_pages', False)
         Preferences.enable_count_words     = sublime_settings.get('enable_count_words', True)
+        Preferences.file_size_limit        = sublime_settings.get('file_size_limit', VIEW_SIZE_LIMIT)
 
         Preferences.enable_line_word_count = sublime_settings.get('enable_line_word_count', False)
         Preferences.enable_line_char_count = sublime_settings.get('enable_line_char_count', False)
@@ -238,10 +239,8 @@ class WordCountView():
             for selection in selections:
                 self.lines_contents.append( view.substr( view.line( selection.end() ) ) )
 
-        # view.settings().get('setting_name', 10) return None randomly for a single time
-        # https://github.com/SublimeTextIssues/Core/issues/2548
-        file_size_limit = self.view.settings().get( 'file_size_limit', VIEW_SIZE_LIMIT )
-        is_limited = view_size > ( file_size_limit if file_size_limit else VIEW_SIZE_LIMIT )
+        file_size_limit = Preferences.file_size_limit
+        is_limited = view_size > file_size_limit
 
         if is_limited:
             self.is_text_selected = False
