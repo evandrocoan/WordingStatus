@@ -76,6 +76,12 @@ def word_count_loop():
         # sleep time is adaptive, if takes more than `mininum_time` to calculate the word count,
         # sleep_time becomes `elapsed_time*3`
         if not Preferences.is_already_running:
+
+            if g_sleepEvent._flag:
+                # set g_sleepEvent._flag to False
+                g_sleepEvent.clear()
+                WordsCount.setUpView( WordsCount.activeView )
+
             WordsCount.doCounting()
 
         # print( "word_count_loop, elapsed_time: %f microseconds" % ( Preferences.elapsed_time * 1000 ) )
@@ -118,8 +124,8 @@ class Preferences():
 
 
 class WordsCount(sublime_plugin.EventListener):
-
     countView = None
+    activeView = None
     wordCountViews = {}
 
     def on_close(self, view):
@@ -143,8 +149,8 @@ class WordsCount(sublime_plugin.EventListener):
 
     def on_activated_async(self, view):
         # print( "on_activated_async, view_id: %d" % view.id() )
-        WordsCount.setUpView( view )
-        WordsCount.doCounting()
+        WordsCount.activeView = view
+        g_sleepEvent.set()
 
     @classmethod
     def doCounting(cls):
