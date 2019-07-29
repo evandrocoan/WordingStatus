@@ -77,8 +77,8 @@ def word_count_loop():
         # sleep_time becomes `elapsed_time*3`
         if not Preferences.is_already_running:
 
-            if g_sleepEvent._flag:
-                # set g_sleepEvent._flag to False
+            if g_sleepEvent.is_set():
+                # set g_sleepEvent._flag, a.k.a., g_sleepEvent.is_set() to False
                 g_sleepEvent.clear()
                 WordsCount.setUpView( WordsCount.activeView )
 
