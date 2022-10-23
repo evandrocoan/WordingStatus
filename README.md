@@ -1,4 +1,4 @@
-
+# Word Count
 
 ## Description
 
@@ -10,6 +10,9 @@ The minimal word length is 1 and does not count digits.
 
 An estimated reading time is now appended to the end of the word count.
 
+## Change log
+
+See [./CHANGELOG.md](./CHANGELOG.md).
 
 ## Installation
 
@@ -89,3 +92,5 @@ Located under Sublime Text>Preferences>Package Settings>Settings — User
  - MangleKuo
  - Nick Cody
  - Amanda Neumann
+ - evandrocoan
+ - Evgeny (eugenesvk)
