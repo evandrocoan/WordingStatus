@@ -1,77 +1,34 @@
-{
-	// Allows you to control if the estimated reading time is enabled.
-	// Reading time is only displayed when there is a time > 1s.
-	"enable_readtime": false,
+{//Key                       	  Value  	     |Default|	Comment
+"enable_readtime"            	: false  	, // |false|  	Allows you to control if the estimated reading time is enabled. Reading time is only displayed when there is a time > 1s
+"enable_count_words"         	: true   	, // |true|   	Display the number of words      in file
+"enable_count_lines"         	: true   	, // |true|   	Display the number of lines      in file
+"enable_count_chars"         	: true   	, // |true|   	Display the number of characters in file
+"enable_count_pages"         	: false  	, // |false|  	Display the number of pages      in file
+"words_per_page"             	: 360    	, // |360|    	Sets the number of words per page used to calculate number of pages
+"file_size_limit"            	: 4194304	, // |4194304|	The maximum characters a file to be computed can have
+"readtime_wpm"               	: 200    	, // |200|    	Sets the WPM to calculate the Estimated Reading Time for the file
+"char_ignore_whitespace"     	: true   	, // |true|   	Whether to skip whitespace for the character count
+"page_count_mode_count_words"	: false  	, // |false|  	Sets the page count mode to words per page
+"enable_line_word_count"     	: false  	, // |false|  	Display the count of words found on current line
+"enable_line_char_count"     	: false  	, // |false|  	Display the count of characters found on current line
+"whitelist_syntaxes"         	: []     	, // |[]|     	An array of syntax names that WordCount should run on
+                             	         	  //          	Example: ["Plain text", "Markdown"]	If the array is empty, like it is by default, WordCount will run on any syntax
+"blacklist_syntaxes"         	: []     	, // |[]|     	An array of syntax names that WordCount should not run on Example: ["Plain text", "Markdown"] If the array is empty, like it is by default, WordCount will run on any syntax
+"word_regexp"                	: ""     	, // |""|     	Word Regular expression. Defaults empty, an internal regular expression is used. If the portion of text matches this RegExp then the word is counted
+"word_split"                 	: ""     	, // |""|     	Split portions of text to test later as words with a Regular expression. Defaults to String.split() with no arguments, means that content will trim() and empty values (all whitespaces) are not used. In case of containing some value different than empty, the return of "re.findall" will be used
+"thousands_separator"        	: "."    	, // |"."|    	Thousands separator's symbol
 
-	// Display the number of words in file
-	"enable_count_words": true,
+"label_line"        	: " Lines"         	, // |" Lines"|         	Label for the number of lines
+"label_word"        	: " Words"         	, // |" Words"|         	Label for the number of words
+"label_char"        	: " Chars"         	, // |" Chars"|         	Label for the number of chars
+"label_word_in_line"	: " Words in lines"	, // |" Words in lines"|	Label for the number of words in lines
+"label_char_in_line"	: " Chars in lines"	, // |" Chars in lines"|	Label for the number of chars in lines
+"label_time"        	: " reading time"  	, // |" reading time"|  	Label for the reading time
+"label_page"        	: "Page "          	, // |"Page "|          	Label for the page number
 
-	// Display the number of lines in file
-	"enable_count_lines": true,
-
-	// Display the number of characters in file
-	"enable_count_chars": true,
-
-	// Display the number of pages in file
-	"enable_count_pages": false,
-
-	// Sets the number of words per page used to calculate number of pages
-	"words_per_page": 360,
-
-	// The maximum characters a file to be computed can have
-	"file_size_limit": 4194304,
-
-	// Sets the WPM to calculate the Estimated Reading Time for the file.
-	"readtime_wpm": 200,
-
-	// Whether to skip whitespace for the character count.
-	"char_ignore_whitespace": true,
-
-	// Sets the page count mode to words per page
-	"page_count_mode_count_words": false,
-
-	// Display the count of words found on current line.
-	"enable_line_word_count": false,
-
-	// Display the count of characters found on current line.
-	"enable_line_char_count": false,
-
-	// An array of syntax names that WordCount should run on.
-	// Example: ["Plain text", "Markdown"]
-	// If the array is empty, like it is by default, WordCount will run on any syntax.
-	"whitelist_syntaxes": [],
-
-	// An array of syntax names that WordCount should not run on.
-	// Example: ["Plain text", "Markdown"]
-	// If the array is empty, like it is by default, WordCount will run on any syntax.
-	"blacklist_syntaxes": [],
-
-	// Word Regular expression. Defaults empty, an internal regular expression
-	// is used. If the portion of text matches this RegExp then the word is
-	// counted.
-	"word_regexp": "",
-
-	// Split portions of text to test later as words with a Regular expression.
-	// Defaults to String.split() with no arguments, means that content will
-	// trim() and empty values (all whitespaces) are not used. In case of
-	// containing some value different than empty, the return of "re.findall"
-	// will be used.
-	"word_split": "",
-
-	// Remove regex patterns by syntax. Split portions of text to test later as
-	// words with a Regular expression. Defaults to String.split() with no
-	// arguments, means that content will trim() and empty values (all
-	// whitespaces) are not used. In case of containing some value different
-	// than empty, the return of "re.findall" will be used.
-	//
-	// Please use lowercase for the syntax names in the following section:
-	"strip": {
-		// Example to ignore all tags, including comments, from HTML.
-		"html": [
-			"<[^>]*>",
-		],
-		"php": [
-			"<[^>]*>",
-		],
-	}
+// Remove regex patterns by syntax. Split portions of text to test later as words with a Regular expression. Defaults to String.split() with no arguments, means that content will trim() and empty values (all whitespaces) are not used. In case of containing some value different than empty, the return of "re.findall" will be used
+"strip": { // Please use lowercase for the syntax names in the following section
+  "html": ["<[^>]*>",], // Example to ignore all tags, including comments, from HTML
+  "php" : ["<[^>]*>",],
+}
 }

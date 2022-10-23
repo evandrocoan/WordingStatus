@@ -120,6 +120,16 @@ class Preferences():
         Preferences.blacklist_syntaxes     = sublime_settings.get('blacklist_syntaxes', [])
         Preferences.strip                  = sublime_settings.get('strip', [])
 
+        Preferences.thousands_separator    = sublime_settings.get('thousands_separator'  , "." )
+
+        Preferences.label_line             = sublime_settings.get('label_line'        , " Lines"          )
+        Preferences.label_word             = sublime_settings.get('label_word'        , " Words"          )
+        Preferences.label_char             = sublime_settings.get('label_char'        , " Chars"          )
+        Preferences.label_word_in_line     = sublime_settings.get('label_word_in_line', " Words in lines" )
+        Preferences.label_char_in_line     = sublime_settings.get('label_char_in_line', " Chars in lines" )
+        Preferences.label_time             = sublime_settings.get('label_time'        , " reading time"   )
+        Preferences.label_page             = sublime_settings.get('label_page'        , "Page "           )
+
         Preferences.page_count_mode_count_words = sublime_settings.get('page_count_mode_count_words', True)
 
 
@@ -311,21 +321,22 @@ class WordCountView():
 def display(view, word_count, char_count, line_count, word_count_line, char_count_line):
     status  = []
     seconds = int( word_count % Preferences.readtime_wpm / ( Preferences.readtime_wpm / 60 ) )
+    k_sep   = Preferences.thousands_separator
 
     if line_count > 0:
-        status.append( "{:,} Lines".format( line_count ).replace( ',', '.' ) )
+        status.append( "{:,}{}".format( line_count     , Preferences.label_line         ).replace(',',k_sep) )
 
     if word_count > 0:
-        status.append( "{:,} Words".format( word_count ).replace( ',', '.' ) )
+        status.append( "{:,}{}".format( word_count     , Preferences.label_word         ).replace(',',k_sep) )
 
     if char_count > 0:
-        status.append( "{:,} Chars".format( char_count ).replace( ',', '.' ) )
+        status.append( "{:,}{}".format( char_count     , Preferences.label_char         ).replace(',',k_sep) )
 
     if word_count_line > 0:
-        status.append( "{:,} Words in line".format( word_count_line ).replace( ',', '.' ) )
+        status.append( "{:,}{}".format( word_count_line, Preferences.label_word_in_line ).replace(',',k_sep) )
 
     if char_count_line > 0:
-        status.append( "{:,} Chars in line".format( char_count_line ).replace( ',', '.' ) )
+        status.append( "{:,}{}".format( char_count_line, Preferences.label_char_in_line ).replace(',',k_sep) )
 
     if Preferences.enable_count_pages and word_count > 0:
 
@@ -343,11 +354,11 @@ def display(view, word_count, char_count, line_count, word_count_line, char_coun
             current_page = ceil((current_line / Preferences.words_per_page) / (rows / Preferences.words_per_page))
 
         if pages > 1:
-            status.append( "Page {:,}/{:,}".format( current_page, pages ).replace( ',', '.' ) )
+            status.append( "{}{:,}/{:,}".format( Preferences.label_page, current_page, pages ).replace( ',', k_sep ) )
 
     if Preferences.enable_readtime and seconds >= 1:
         minutes = int( word_count / Preferences.readtime_wpm )
-        status.append( "~{:,}m {:,}s reading time".format( minutes, seconds ).replace( ',', '.' ) )
+        status.append( "~{:,}m {:,}s{}".format( minutes, seconds, Preferences.label_time ).replace( ',', k_sep ) )
 
     status_text = ', '.join( status )
     view.set_status( 'WordCountStatus', status_text )
