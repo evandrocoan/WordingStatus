@@ -11,9 +11,9 @@
 "page_count_mode_count_words"	: false  	, // |false|  	Sets the page count mode to words per page
 "enable_line_word_count"     	: false  	, // |false|  	Display the count of words found on current line
 "enable_line_char_count"     	: false  	, // |false|  	Display the count of characters found on current line
-"whitelist_syntaxes"         	: []     	, // |[]|     	An array of syntax names that WordCount should run on
-                             	         	  //          	Example: ["Plain text", "Markdown"]	If the array is empty, like it is by default, WordCount will run on any syntax
-"blacklist_syntaxes"         	: []     	, // |[]|     	An array of syntax names that WordCount should not run on Example: ["Plain text", "Markdown"] If the array is empty, like it is by default, WordCount will run on any syntax
+"whitelist_syntaxes"         	: []     	, // |[]|     	An array of syntax names that WordingStatus should run on
+                             	         	  //          	Example: ["Plain text", "Markdown"]	If the array is empty, like it is by default, WordingStatus will run on any syntax
+"blacklist_syntaxes"         	: []     	, // |[]|     	An array of syntax names that WordingStatus should not run on Example: ["Plain text", "Markdown"] If the array is empty, like it is by default, WordingStatus will run on any syntax
 "word_regexp"                	: ""     	, // |""|     	Word Regular expression. Defaults empty, an internal regular expression is used. If the portion of text matches this RegExp then the word is counted
 "word_split"                 	: ""     	, // |""|     	Split portions of text to test later as words with a Regular expression. Defaults to String.split() with no arguments, means that content will trim() and empty values (all whitespaces) are not used. In case of containing some value different than empty, the return of "re.findall" will be used
 "thousands_separator"        	: "."    	, // |"."|    	Thousands separator's symbol

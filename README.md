@@ -1,8 +1,8 @@
-# Word Count
+# Wording Status
 
 ## Description
 
-Provides a real-time Word Count and character count in the status-bar for Sublime Text. See: http://www.sublimetext.com/
+Provides a real-time word and character count in the status-bar for Sublime Text. See: http://www.sublimetext.com/
 
 Count words and/or characters on document or in selections. By default, whitespace is not included in the character count.
 
@@ -59,7 +59,7 @@ See [./CHANGELOG.md](./CHANGELOG.md).
     go to the menu **`Preferences -> Package Control`**
 1. Type **`Install Package`** on the opened quick panel and press <kbd>Enter</kbd>
 1. Then,
-    search for **`WordCount`** and press <kbd>Enter</kbd>
+    search for **`WordingStatus`** and press <kbd>Enter</kbd>
 
 See also:
 

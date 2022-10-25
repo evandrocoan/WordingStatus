@@ -1,4 +1,8 @@
-# Word Count
+# Wording Status
+
+## 2.0.0
+
+Renamed package from Word Count (forked from https://github.com/evandrocoan/WordingStatus/issues/5) to WordingStatus.
 
 ## 1.1.0
 

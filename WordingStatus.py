@@ -20,7 +20,7 @@ def plugin_unloaded():
     global g_is_already_running
 
     g_is_already_running = False
-    sublime_settings.clear_on_change( 'WordCount' )
+    sublime_settings.clear_on_change( 'WordingStatus' )
 
     for window in sublime.windows():
 
@@ -32,14 +32,14 @@ def plugin_loaded():
     global Preferences
     global sublime_settings
 
-    sublime_settings = sublime.load_settings( 'WordCount.sublime-settings' )
+    sublime_settings = sublime.load_settings( 'WordingStatus.sublime-settings' )
     Preferences.load();
 
-    sublime_settings.clear_on_change( 'WordCount' )
-    sublime_settings.add_on_change( 'WordCount', lambda: Preferences.load() )
+    sublime_settings.clear_on_change( 'WordingStatus' )
+    sublime_settings.add_on_change( 'WordingStatus', lambda: Preferences.load() )
 
-    # Initialize the WordsCount's countView attribute
-    WordsCount.setUpView( get_active_view() )
+    # Initialize the WordingStatuses's countView attribute
+    WordingStatuses.setUpView( get_active_view() )
 
     if not g_is_already_running:
         g_sleepEvent.set()
@@ -80,9 +80,9 @@ def word_count_loop():
             if g_sleepEvent.is_set():
                 # set g_sleepEvent._flag, a.k.a., g_sleepEvent.is_set() to False
                 g_sleepEvent.clear()
-                WordsCount.setUpView( WordsCount.activeView )
+                WordingStatuses.setUpView( WordingStatuses.activeView )
 
-            WordsCount.doCounting()
+            WordingStatuses.doCounting()
 
         # print( "word_count_loop, elapsed_time: %f microseconds" % ( Preferences.elapsed_time * 1000 ) )
         g_sleepEvent.wait( Preferences.elapsed_time*100 if Preferences.elapsed_time > mininum_time else default_time )
@@ -133,7 +133,7 @@ class Preferences():
         Preferences.page_count_mode_count_words = sublime_settings.get('page_count_mode_count_words', True)
 
 
-class WordsCount(sublime_plugin.EventListener):
+class WordingStatuses(sublime_plugin.EventListener):
     countView = None
     activeView = None
     wordCountViews = {}
@@ -141,8 +141,8 @@ class WordsCount(sublime_plugin.EventListener):
     def on_close(self, view):
         view_id = view.id()
 
-        if view_id in WordsCount.wordCountViews:
-            del WordsCount.wordCountViews[view_id]
+        if view_id in WordingStatuses.wordCountViews:
+            del WordingStatuses.wordCountViews[view_id]
 
     def on_selection_modified_async(self, view):
 
@@ -152,14 +152,14 @@ class WordsCount(sublime_plugin.EventListener):
             for selection in selections:
 
                 if len( selection ):
-                    WordsCount.countView.is_text_selected = True
+                    WordingStatuses.countView.is_text_selected = True
                     return
 
-            WordsCount.countView.is_text_selected = False
+            WordingStatuses.countView.is_text_selected = False
 
     def on_activated_async(self, view):
         # print( "on_activated_async, view_id: %d" % view.id() )
-        WordsCount.activeView = view
+        WordingStatuses.activeView = view
         g_sleepEvent.set()
 
     @classmethod
@@ -193,7 +193,7 @@ class WordsCount(sublime_plugin.EventListener):
             wordCountView.syntax = is_enabled
 
         else:
-            wordCountView = WordCountView( view, syntax, is_enabled )
+            wordCountView = WordingStatusesView( view, syntax, is_enabled )
             wordCountViews[view_id] = wordCountView
 
         cls.countView = wordCountView
@@ -222,7 +222,7 @@ class WordsCount(sublime_plugin.EventListener):
         return syntax, True
 
 
-class WordCountView():
+class WordingStatusesView():
 
     def __init__(self, view, syntax, is_enabled):
         self.syntax = syntax
@@ -230,7 +230,7 @@ class WordCountView():
         self.is_text_selected = False
 
         # We need to set it to -1, because by default it starts on 0. Then we for an update when a
-        # view is first activated by `WordsCount::on_activated_async()`
+        # view is first activated by `WordingStatuses::on_activated_async()`
         self.change_count   = -1
         self.lines_contents = []
 

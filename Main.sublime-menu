@@ -10,13 +10,13 @@
                 "id": "package-settings",
                 "children": [
                     {
-                        "caption": "Word Count",
+                        "caption": "Wording Status",
                         "children": [
                             {
                                 "caption": "Settings",
                                 "command": "edit_settings",
                                 "args": {
-                                    "base_file": "${packages}/WordCount/WordCount.sublime-settings",
+                                    "base_file": "${packages}/WordingStatus/WordingStatus.sublime-settings",
                                     "default": "{\n$0\n}\n"
                                 }
                             }
