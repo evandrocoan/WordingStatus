@@ -104,7 +104,7 @@ class Preferences():
             Preferences.splitRegex         = re.compile(Preferences.splitRegex, re.U)
             Preferences.splitRegex         = Preferences.splitRegex.findall
 
-        Preferences.status_name            = sublime_settings.get('status_order_prefix', '')
+        Preferences.status_name            = sublime_settings.get('status_order_prefix', '') + 'WordCountStatus'
 
         Preferences.enable_readtime        = sublime_settings.get('enable_readtime', False)
         Preferences.enable_count_lines     = sublime_settings.get('enable_count_lines', False)
