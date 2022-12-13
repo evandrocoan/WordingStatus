@@ -17,6 +17,7 @@ g_is_already_running = False
 
 
 def plugin_unloaded():
+    global Preferences
     global g_is_already_running
 
     g_is_already_running = False
@@ -25,7 +26,7 @@ def plugin_unloaded():
     for window in sublime.windows():
 
         for view in window.views():
-            view.erase_status('WordCountStatus');
+            view.erase_status(Preferences.status_name);
 
 
 def plugin_loaded():
@@ -102,6 +103,8 @@ class Preferences():
         if Preferences.splitRegex:
             Preferences.splitRegex         = re.compile(Preferences.splitRegex, re.U)
             Preferences.splitRegex         = Preferences.splitRegex.findall
+
+        Preferences.status_name            = sublime_settings.get('status_order_prefix', '') + 'WordCountStatus'
 
         Preferences.enable_readtime        = sublime_settings.get('enable_readtime', False)
         Preferences.enable_count_lines     = sublime_settings.get('enable_count_lines', False)
@@ -361,7 +364,7 @@ def display(view, word_count, char_count, line_count, word_count_line, char_coun
         status.append( "~{:,}m {:,}s{}".format( minutes, seconds, Preferences.label_time ).replace( ',', k_sep ) )
 
     status_text = ', '.join( status )
-    view.set_status( 'WordCountStatus', status_text )
+    view.set_status( Preferences.status_name, status_text )
     # print( "view: %d, Setting status to: " % view.id() + status_text )
 
 
