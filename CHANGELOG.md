@@ -2,6 +2,13 @@
 
 ## 2.0.0
 
+Created the setting `status_order_prefix` Evgeny (eugenesvk).
+```
+"status_order_prefix"           : ""        , // |""|       Prefix the status name to change its order in the status bar, which uses alphabetical sorting
+```
+
+## 2.0.0
+
 Renamed package from Word Count (forked from https://github.com/evandrocoan/WordingStatus/issues/5) to WordingStatus.
 
 ## 1.1.0
