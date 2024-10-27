@@ -331,10 +331,10 @@ def display(view, word_count, char_count, line_count, word_count_line, char_coun
     status.append(out_word_line +' '+ out_char_line)
   elif (not (word_count_line > 0) and
              char_count_line > 0):
-    status.append(out_char_line)
+    status.append(                    out_char_line)
   elif (not (char_count_line > 0) and
              word_count_line > 0):
-    status.append(out_word_line)
+    status.append(                    out_word_line)
 
   if Pref.enable_count_pages and word_count > 0:
     if not Pref.page_count_mode_count_words or Pref.words_per_page < 1:
