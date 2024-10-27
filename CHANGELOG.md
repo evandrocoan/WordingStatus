@@ -1,5 +1,11 @@
 # Wording Status
 
+## Unreleased
+
+- Add `Command Palette` commands to open settings files `Preferences: WordingStatus Settings` or `WordingStatus Settings: User`/`WordingStatus Settings: Default`
+- 🐞 don't leave old statusbar messages when changing its position via `status_order_prefix`
+- moved to the new 3.8 Sublime Text plugin host
+
 ## 2.0.1
 
 Created the setting `status_order_prefix` Evgeny (eugenesvk).
