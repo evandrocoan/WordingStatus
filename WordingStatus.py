@@ -83,7 +83,7 @@ class Pref():
     Pref.elapsed_time           = 1.4
     Pref.is_already_running     = False
 
-    Pref.wordRegex              = re.compile(subl_setting.get('word_regexp',"^[^\w]?`*\w+[^\w]*$"), re.U)
+    Pref.wordRegex              = re.compile(subl_setting.get('word_regexp',r"^[^\w]?`*\w+[^\w]*$"), re.U)
     Pref.wordRegex              = Pref.wordRegex.match
     Pref.splitRegex             = subl_setting.get('word_split', None)
 
