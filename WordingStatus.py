@@ -181,32 +181,28 @@ class WordingStatuses(sublime_plugin.ViewEventListener):
 
     # print("setUpView, view_id: %d" % view_id)
     if view_id in wordCountViews:
-      wordCountView = wordCountViews[view_id]
-      wordCountView.syntax = syntax
-      wordCountView.syntax = is_enabled
+      wordCountView       	= wordCountViews[view_id]
+      wordCountView.syntax	= syntax
+      wordCountView.syntax	= is_enabled
 
     else:
-      wordCountView = WordingStatusesView(view, syntax, is_enabled)
-      wordCountViews[view_id] = wordCountView
+      wordCountView          	= WordingStatusesView(view, syntax, is_enabled)
+      wordCountViews[view_id]	= wordCountView
 
     cls.countView = wordCountView
 
   @staticmethod
   def should_run_with_syntax(view_settings):
-    syntax = view_settings.get('syntax')
-    syntax = basename(syntax).split('.')[0].lower() if syntax != None else "plain text"
+    syntax	= view_settings.get('syntax')
+    syntax	= basename(syntax).split('.')[0].lower() if syntax != None else "plain text"
 
     if len(Pref.blacklist_syntaxes) > 0:
-
       for white in Pref.blacklist_syntaxes:
-
         if white == syntax:
           return syntax, False
 
     if len(Pref.whitelist_syntaxes) > 0:
-
       for white in Pref.whitelist_syntaxes:
-
         if white == syntax:
           return syntax, True
 
@@ -218,31 +214,30 @@ class WordingStatuses(sublime_plugin.ViewEventListener):
 class WordingStatusesView():
 
   def __init__(self, view, syntax, is_enabled):
-    self.syntax = syntax
-    self.is_enabled = is_enabled
-    self.is_text_selected = False
+    self.syntax          	= syntax
+    self.is_enabled      	= is_enabled
+    self.is_text_selected	= False
 
-    # We need to set it to -1, because by default it starts on 0. Then we for an update when a
-    # view is first activated by `WordingStatuses::on_activated_async()`
-    self.change_count   = -1
-    self.lines_contents = []
+    # We need to set it to -1, because by default it starts on 0. Then we for an update when a view is first activated by `WordingStatuses::on_activated_async()`
+    self.change_count  	= -1
+    self.lines_contents	= []
 
-    self.view     = view
-    self.contents = []
+    self.view    	= view
+    self.contents	= []
 
-    self.char_count = 0
-    self.word_count = 0
-    self.line_count = 0
+    self.char_count	= 0
+    self.word_count	= 0
+    self.line_count	= 0
 
-    self.word_count_line = 0
-    self.char_count_line = 0
+    self.word_count_line	= 0
+    self.char_count_line	= 0
 
   def updateViewContents(self):
     view = self.view
     del self.contents[:]
 
-    selections = view.sel()
-    view_size = view.size()
+    selections	= view.sel()
+    view_size 	= view.size()
 
     if Pref.enable_line_char_count or Pref.enable_line_word_count:
       del self.lines_contents[:]
