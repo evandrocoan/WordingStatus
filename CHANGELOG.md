@@ -8,6 +8,7 @@
 - add `minute_separator` user setting for separating `5m 2s` in time
 - add `in_group_separator` user setting for separating line/word/char counts
 - group total / per-line counts into two groups for the statusbar to avoid `,` separators forced by Sublime Text
+- add user settings to reorder count groups / individual counts via a `status_template` template string
 
 ## 2.0.1
 
