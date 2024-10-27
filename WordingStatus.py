@@ -117,6 +117,7 @@ class Pref():
 
     Pref.thousands_separator    = subl_setting.get('thousands_separator'   , ".")
     Pref.minute_separator       = subl_setting.get('minute_separator'      , " ")
+    Pref.in_group_separator     = subl_setting.get('in_group_separator'    , " ")
 
     Pref.label_line             = subl_setting.get('label_line'        , " Lines"          )
     Pref.label_word             = subl_setting.get('label_word'        , " Words"          )
@@ -316,16 +317,16 @@ def display(view, word_count, char_count, line_count, word_count_line, char_coun
   out_line,pos_line,out_word,pos_word,out_char,out_word_line,pos_word_line = '','','','','','',''
   if line_count:
     out_line	= "{:,}{}".format(line_count	,Pref.label_line	).replace(',',k_sep)
-    pos_line	= ' '
+    pos_line	= Pref.in_group_separator
   if word_count:
     out_word	= "{:,}{}".format(word_count	,Pref.label_word	).replace(',',k_sep)
-    pos_word	= ' '
+    pos_word	= Pref.in_group_separator
   if char_count:
     out_char	= "{:,}{}".format(char_count	,Pref.label_char	).replace(',',k_sep)
 
   if word_count_line:
     out_word_line	= "{:,}{}".format(word_count_line,Pref.label_word_in_line	).replace(',',k_sep)
-    pos_word_line	= ' '
+    pos_word_line	= Pref.in_group_separator
   if char_count_line:
     out_char_line	= "{:,}{}".format(char_count_line,Pref.label_char_in_line	).replace(',',k_sep)
 

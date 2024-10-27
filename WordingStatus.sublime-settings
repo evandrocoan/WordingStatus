@@ -18,6 +18,7 @@
 "word_split"                 	: ""     	, //""     	Split portions of text to test later as words with a Regular expression. Defaults to String.split() with no arguments, means that content will trim() and empty values (all whitespaces) are not used. In case of containing some value different than empty, the return of "re.findall" will be used
 "thousands_separator"        	: "."    	, //"."    	Thousands separator's symbol
 "minute_separator"           	: " "    	, //" "    	Symbol separating minutes and seconds
+"in_group_separator"         	: " "    	, //" "    	Symbol separating line/word/char counts
 "status_order_prefix"        	: ""     	, //""     	Prefix the status name to change its order in the status bar, which uses alphabetical sorting
 
 //Key               	   Value           	   ≝Default          	Comment
