@@ -11,13 +11,13 @@ from os.path import basename
 
 VIEW_SIZE_LIMIT = 4194304
 
-Preferences  = {}
+Pref  = {}
 g_sleepEvent = threading.Event()
 g_is_already_running = False
 
 
 def plugin_unloaded():
-  global Preferences
+  global Pref
   global g_is_already_running
 
   g_is_already_running = False
@@ -26,18 +26,18 @@ def plugin_unloaded():
   for window in sublime.windows():
 
     for view in window.views():
-      view.erase_status(Preferences.status_name);
+      view.erase_status(Pref.status_name);
 
 
 def plugin_loaded():
-  global Preferences
+  global Pref
   global sublime_settings
 
   sublime_settings = sublime.load_settings( 'WordingStatus.sublime-settings' )
-  Preferences.load();
+  Pref.load();
 
   sublime_settings.clear_on_change( 'WordingStatus' )
-  sublime_settings.add_on_change( 'WordingStatus', lambda: Preferences.load() )
+  sublime_settings.add_on_change( 'WordingStatus', lambda: Pref.load() )
 
   # Initialize the WordingStatuses's countView attribute
   WordingStatuses.setUpView( get_active_view() )
@@ -45,7 +45,7 @@ def plugin_loaded():
   if not g_is_already_running:
     g_sleepEvent.set()
 
-    # Wait the Preferences class to be loaded
+    # Wait the Pref class to be loaded
     sublime.set_timeout_async( configure_word_count, 5000 )
 
 
@@ -76,7 +76,7 @@ def word_count_loop():
 
     # sleep time is adaptive, if takes more than `mininum_time` to calculate the word count,
     # sleep_time becomes `elapsed_time*3`
-    if not Preferences.is_already_running:
+    if not Pref.is_already_running:
 
       if g_sleepEvent.is_set():
         # set g_sleepEvent._flag, a.k.a., g_sleepEvent.is_set() to False
@@ -85,55 +85,55 @@ def word_count_loop():
 
       WordingStatuses.doCounting()
 
-    # print( "word_count_loop, elapsed_time: %f microseconds" % ( Preferences.elapsed_time * 1000 ) )
-    g_sleepEvent.wait( Preferences.elapsed_time*100 if Preferences.elapsed_time > mininum_time else default_time )
+    # print( "word_count_loop, elapsed_time: %f microseconds" % ( Pref.elapsed_time * 1000 ) )
+    g_sleepEvent.wait( Pref.elapsed_time*100 if Pref.elapsed_time > mininum_time else default_time )
 
 
-class Preferences():
+class Pref():
 
   @staticmethod
   def load():
-    Preferences.elapsed_time           = 1.4
-    Preferences.is_already_running     = False
+    Pref.elapsed_time           = 1.4
+    Pref.is_already_running     = False
 
-    Preferences.wordRegex              = re.compile( sublime_settings.get('word_regexp', "^[^\w]?`*\w+[^\w]*$"), re.U )
-    Preferences.wordRegex              = Preferences.wordRegex.match
-    Preferences.splitRegex             = sublime_settings.get('word_split', None)
+    Pref.wordRegex              = re.compile( sublime_settings.get('word_regexp', "^[^\w]?`*\w+[^\w]*$"), re.U )
+    Pref.wordRegex              = Pref.wordRegex.match
+    Pref.splitRegex             = sublime_settings.get('word_split', None)
 
-    if Preferences.splitRegex:
-      Preferences.splitRegex         = re.compile(Preferences.splitRegex, re.U)
-      Preferences.splitRegex         = Preferences.splitRegex.findall
+    if Pref.splitRegex:
+      Pref.splitRegex         = re.compile(Pref.splitRegex, re.U)
+      Pref.splitRegex         = Pref.splitRegex.findall
 
-    Preferences.status_name            = sublime_settings.get('status_order_prefix', '') + 'WordCountStatus'
+    Pref.status_name            = sublime_settings.get('status_order_prefix', '') + 'WordCountStatus'
 
-    Preferences.enable_readtime        = sublime_settings.get('enable_readtime', False)
-    Preferences.enable_count_lines     = sublime_settings.get('enable_count_lines', False)
-    Preferences.enable_count_chars     = sublime_settings.get('enable_count_chars', False)
-    Preferences.enable_count_pages     = sublime_settings.get('enable_count_pages', False)
-    Preferences.enable_count_words     = sublime_settings.get('enable_count_words', True)
-    Preferences.file_size_limit        = sublime_settings.get('file_size_limit', VIEW_SIZE_LIMIT)
+    Pref.enable_readtime        = sublime_settings.get('enable_readtime', False)
+    Pref.enable_count_lines     = sublime_settings.get('enable_count_lines', False)
+    Pref.enable_count_chars     = sublime_settings.get('enable_count_chars', False)
+    Pref.enable_count_pages     = sublime_settings.get('enable_count_pages', False)
+    Pref.enable_count_words     = sublime_settings.get('enable_count_words', True)
+    Pref.file_size_limit        = sublime_settings.get('file_size_limit', VIEW_SIZE_LIMIT)
 
-    Preferences.enable_line_word_count = sublime_settings.get('enable_line_word_count', False)
-    Preferences.enable_line_char_count = sublime_settings.get('enable_line_char_count', False)
+    Pref.enable_line_word_count = sublime_settings.get('enable_line_word_count', False)
+    Pref.enable_line_char_count = sublime_settings.get('enable_line_char_count', False)
 
-    Preferences.readtime_wpm           = sublime_settings.get('readtime_wpm', 200)
-    Preferences.words_per_page         = sublime_settings.get('words_per_page', 300)
-    Preferences.char_ignore_whitespace = sublime_settings.get('char_ignore_whitespace', True)
-    Preferences.whitelist_syntaxes     = sublime_settings.get('whitelist_syntaxes', [])
-    Preferences.blacklist_syntaxes     = sublime_settings.get('blacklist_syntaxes', [])
-    Preferences.strip                  = sublime_settings.get('strip', [])
+    Pref.readtime_wpm           = sublime_settings.get('readtime_wpm', 200)
+    Pref.words_per_page         = sublime_settings.get('words_per_page', 300)
+    Pref.char_ignore_whitespace = sublime_settings.get('char_ignore_whitespace', True)
+    Pref.whitelist_syntaxes     = sublime_settings.get('whitelist_syntaxes', [])
+    Pref.blacklist_syntaxes     = sublime_settings.get('blacklist_syntaxes', [])
+    Pref.strip                  = sublime_settings.get('strip', [])
 
-    Preferences.thousands_separator    = sublime_settings.get('thousands_separator'  , "." )
+    Pref.thousands_separator    = sublime_settings.get('thousands_separator'  , "." )
 
-    Preferences.label_line             = sublime_settings.get('label_line'        , " Lines"          )
-    Preferences.label_word             = sublime_settings.get('label_word'        , " Words"          )
-    Preferences.label_char             = sublime_settings.get('label_char'        , " Chars"          )
-    Preferences.label_word_in_line     = sublime_settings.get('label_word_in_line', " Words in lines" )
-    Preferences.label_char_in_line     = sublime_settings.get('label_char_in_line', " Chars in lines" )
-    Preferences.label_time             = sublime_settings.get('label_time'        , " reading time"   )
-    Preferences.label_page             = sublime_settings.get('label_page'        , "Page "           )
+    Pref.label_line             = sublime_settings.get('label_line'        , " Lines"          )
+    Pref.label_word             = sublime_settings.get('label_word'        , " Words"          )
+    Pref.label_char             = sublime_settings.get('label_char'        , " Chars"          )
+    Pref.label_word_in_line     = sublime_settings.get('label_word_in_line', " Words in lines" )
+    Pref.label_char_in_line     = sublime_settings.get('label_char_in_line', " Chars in lines" )
+    Pref.label_time             = sublime_settings.get('label_time'        , " reading time"   )
+    Pref.label_page             = sublime_settings.get('label_page'        , "Page "           )
 
-    Preferences.page_count_mode_count_words = sublime_settings.get('page_count_mode_count_words', True)
+    Pref.page_count_mode_count_words = sublime_settings.get('page_count_mode_count_words', True)
 
 
 class WordingStatuses(sublime_plugin.EventListener):
@@ -149,7 +149,7 @@ class WordingStatuses(sublime_plugin.EventListener):
 
   def on_selection_modified_async(self, view):
 
-    if Preferences.enable_count_words:
+    if Pref.enable_count_words:
       selections = view.sel()
 
       for selection in selections:
@@ -206,16 +206,16 @@ class WordingStatuses(sublime_plugin.EventListener):
     syntax = view_settings.get('syntax')
     syntax = basename( syntax ).split( '.' )[0].lower() if syntax != None else "plain text"
 
-    if len( Preferences.blacklist_syntaxes ) > 0:
+    if len( Pref.blacklist_syntaxes ) > 0:
 
-      for white in Preferences.blacklist_syntaxes:
+      for white in Pref.blacklist_syntaxes:
 
         if white == syntax:
           return syntax, False
 
-    if len(Preferences.whitelist_syntaxes) > 0:
+    if len(Pref.whitelist_syntaxes) > 0:
 
-      for white in Preferences.whitelist_syntaxes:
+      for white in Pref.whitelist_syntaxes:
 
         if white == syntax:
           return syntax, True
@@ -254,13 +254,13 @@ class WordingStatusesView():
     selections = view.sel()
     view_size = view.size()
 
-    if Preferences.enable_line_char_count or Preferences.enable_line_word_count:
+    if Pref.enable_line_char_count or Pref.enable_line_word_count:
       del self.lines_contents[:]
 
       for selection in selections:
         self.lines_contents.append( view.substr( view.line( selection.end() ) ) )
 
-    file_size_limit = Preferences.file_size_limit
+    file_size_limit = Pref.file_size_limit
     is_limited = view_size > file_size_limit
 
     if is_limited:
@@ -279,15 +279,15 @@ class WordingStatusesView():
     if not self.is_enabled:
       return
 
-    Preferences.start_time = time.perf_counter()
-    Preferences.is_already_running = True
+    Pref.start_time = time.perf_counter()
+    Pref.is_already_running = True
 
     view = self.view
     self.updateViewContents()
 
-    if self.syntax and self.syntax in Preferences.strip:
+    if self.syntax and self.syntax in Pref.strip:
 
-      for regular_expression in Preferences.strip[self.syntax]:
+      for regular_expression in Pref.strip[self.syntax]:
         lines_count = len( self.contents )
         lines_contents_count = len( self.lines_contents )
 
@@ -297,19 +297,19 @@ class WordingStatusesView():
         for selection_index in range( lines_contents_count ):
           self.lines_contents[selection_index] = re.sub( regular_expression, '', self.lines_contents[selection_index] )
 
-    if Preferences.enable_count_lines:
+    if Pref.enable_count_lines:
       self.line_count = view.rowcol( view.size() )[0] + 1
 
-    if Preferences.enable_count_words:
+    if Pref.enable_count_words:
       self.word_count = count_words( self.contents )
 
-    if Preferences.enable_count_chars:
+    if Pref.enable_count_chars:
       self.char_count = count_chars( self.contents )
 
-    if Preferences.enable_line_char_count:
+    if Pref.enable_line_char_count:
       self.char_count_line = count_chars( self.lines_contents )
 
-    if Preferences.enable_line_word_count:
+    if Pref.enable_line_word_count:
       self.word_count_line = count_words( self.lines_contents )
 
     self.displayCountResults()
@@ -317,33 +317,33 @@ class WordingStatusesView():
   def displayCountResults(self):
     display( self.view, self.word_count, self.char_count, self.line_count, self.word_count_line, self.char_count_line )
 
-    Preferences.elapsed_time = time.perf_counter() - Preferences.start_time
-    Preferences.is_already_running = False
+    Pref.elapsed_time = time.perf_counter() - Pref.start_time
+    Pref.is_already_running = False
 
 
 def display(view, word_count, char_count, line_count, word_count_line, char_count_line):
   status  = []
-  seconds = int( word_count % Preferences.readtime_wpm / ( Preferences.readtime_wpm / 60 ) )
-  k_sep   = Preferences.thousands_separator
+  seconds = int( word_count % Pref.readtime_wpm / ( Pref.readtime_wpm / 60 ) )
+  k_sep   = Pref.thousands_separator
 
   if line_count > 0:
-    status.append( "{:,}{}".format( line_count     , Preferences.label_line         ).replace(',',k_sep) )
+    status.append( "{:,}{}".format( line_count     , Pref.label_line         ).replace(',',k_sep) )
 
   if word_count > 0:
-    status.append( "{:,}{}".format( word_count     , Preferences.label_word         ).replace(',',k_sep) )
+    status.append( "{:,}{}".format( word_count     , Pref.label_word         ).replace(',',k_sep) )
 
   if char_count > 0:
-    status.append( "{:,}{}".format( char_count     , Preferences.label_char         ).replace(',',k_sep) )
+    status.append( "{:,}{}".format( char_count     , Pref.label_char         ).replace(',',k_sep) )
 
   if word_count_line > 0:
-    status.append( "{:,}{}".format( word_count_line, Preferences.label_word_in_line ).replace(',',k_sep) )
+    status.append( "{:,}{}".format( word_count_line, Pref.label_word_in_line ).replace(',',k_sep) )
 
   if char_count_line > 0:
-    status.append( "{:,}{}".format( char_count_line, Preferences.label_char_in_line ).replace(',',k_sep) )
+    status.append( "{:,}{}".format( char_count_line, Pref.label_char_in_line ).replace(',',k_sep) )
 
-  if Preferences.enable_count_pages and word_count > 0:
+  if Pref.enable_count_pages and word_count > 0:
 
-    if not Preferences.page_count_mode_count_words or Preferences.words_per_page < 1:
+    if not Pref.page_count_mode_count_words or Pref.words_per_page < 1:
       visible = view.visible_region()
       rows_per_page = (view.rowcol(visible.end())[0]) - (view.rowcol(visible.begin())[0])
       pages = ceil((view.rowcol(view.size()-1)[0] + 1 ) /  rows_per_page)
@@ -351,28 +351,28 @@ def display(view, word_count, char_count, line_count, word_count_line, char_coun
       current_page = ceil(current_line / rows_per_page)
 
     else:
-      pages = ceil(word_count / Preferences.words_per_page)
+      pages = ceil(word_count / Pref.words_per_page)
       rows = view.rowcol(view.size()-1)[0] + 1
       current_line = view.rowcol(view.sel()[0].begin())[0]+1
-      current_page = ceil((current_line / Preferences.words_per_page) / (rows / Preferences.words_per_page))
+      current_page = ceil((current_line / Pref.words_per_page) / (rows / Pref.words_per_page))
 
     if pages > 1:
-      status.append( "{}{:,}/{:,}".format( Preferences.label_page, current_page, pages ).replace( ',', k_sep ) )
+      status.append( "{}{:,}/{:,}".format( Pref.label_page, current_page, pages ).replace( ',', k_sep ) )
 
-  if Preferences.enable_readtime and seconds >= 1:
-    minutes = int( word_count / Preferences.readtime_wpm )
-    status.append( "~{:,}m {:,}s{}".format( minutes, seconds, Preferences.label_time ).replace( ',', k_sep ) )
+  if Pref.enable_readtime and seconds >= 1:
+    minutes = int( word_count / Pref.readtime_wpm )
+    status.append( "~{:,}m {:,}s{}".format( minutes, seconds, Pref.label_time ).replace( ',', k_sep ) )
 
   status_text = ', '.join( status )
-  view.set_status( Preferences.status_name, status_text )
+  view.set_status( Pref.status_name, status_text )
   # print( "view: %d, Setting status to: " % view.id() + status_text )
 
 
 def count_words(text_list):
   words_count = 0
 
-  wordRegex  = Preferences.wordRegex
-  splitRegex = Preferences.splitRegex
+  wordRegex  = Pref.wordRegex
+  splitRegex = Pref.splitRegex
 
   if splitRegex:
 
@@ -395,7 +395,7 @@ def count_words(text_list):
 def count_chars(text_list):
   char_count = 0
 
-  if Preferences.char_ignore_whitespace:
+  if Pref.char_ignore_whitespace:
     char_count = sum( sum( len( word ) for word in words.split() ) for words in text_list )
 
   else:
