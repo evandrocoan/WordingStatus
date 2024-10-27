@@ -349,7 +349,7 @@ def display(view, word_count, char_count, line_count, word_count_line, char_coun
 
   if Pref.enable_readtime and seconds >= 1:
     minutes = int(word_count / Pref.readtime_wpm)
-    status.append("~{:,}m {:,}s{}".format(minutes, seconds, Pref.label_time).replace(',', k_sep))
+    status.append("~{:,}m {:,}s{}".format( minutes, seconds, Pref.label_time).replace(',',k_sep))
 
   status_text = ', '.join(status)
   view.set_status(Pref.status_name, status_text)
