@@ -19,6 +19,7 @@
 "thousands_separator"        	: "."    	, //"."    	Thousands separator's symbol
 "minute_separator"           	: " "    	, //" "    	Symbol separating minutes and seconds
 "in_group_separator"         	: " "    	, //" "    	Symbol separating line/word/char counts
+"group_separator"            	: ", "   	, //", "   	Symbol separating groups
 "status_order_prefix"        	: ""     	, //""     	Prefix the status name to change its order in the status bar, which uses alphabetical sorting
 
 //Key               	   Value           	   ≝Default          	Comment
