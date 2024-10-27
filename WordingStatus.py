@@ -92,7 +92,7 @@ class Pref():
       Pref.splitRegex           = Pref.splitRegex.findall
 
     old_status_name             = Pref.status_name if hasattr(Pref,'status_name') else ''
-    Pref.status_name            = subl_setting.get('status_order_prefix', '') + 'WordCountStatus'
+    Pref.status_name            = subl_setting.get('status_order_prefix', '') + 'WordingStatus'
     if        old_status_name \
       and not old_status_name == Pref.status_name: # erase previous status on ID change
       for window in sublime.windows():
