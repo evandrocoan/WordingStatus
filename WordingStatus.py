@@ -91,7 +91,13 @@ class Pref():
       Pref.splitRegex           = re.compile(Pref.splitRegex, re.U)
       Pref.splitRegex           = Pref.splitRegex.findall
 
+    old_status_name             = Pref.status_name if hasattr(Pref,'status_name') else ''
     Pref.status_name            = subl_setting.get('status_order_prefix', '') + 'WordCountStatus'
+    if        old_status_name \
+      and not old_status_name == Pref.status_name: # erase previous status on ID change
+      for window in sublime.windows():
+        for view in window.views():
+          view.set_status(old_status_name,'');
 
     Pref.enable_readtime        = subl_setting.get('enable_readtime'   , False)
     Pref.enable_count_lines     = subl_setting.get('enable_count_lines', False)
