@@ -20,7 +20,14 @@
 "minute_separator"           	: " "    	, //" "    	Symbol separating minutes and seconds
 "in_group_separator"         	: " "    	, //" "    	Symbol separating line/word/char counts
 "group_separator"            	: ", "   	, //", "   	Symbol separating groups
-"status_order_prefix"        	: ""     	, //""     	Prefix the status name to change its order in the status bar, which uses alphabetical sorting
+// Reorder indicators
+"status_order_prefix"	: ""          	, //""          	Prefix the status name to change its order in the status bar, which uses alphabetical sorting
+"status_template"    	: "lwc|WC|p|t"	, //"lwc|WC|p|t"	Order of various counts in the statusbar (CaSe sensitive!)
+  //                 	   lwc        	                	line / word / char          counts
+  //                 	       WC     	                	       Word / Char per line counts
+  //                 	          p   	                	page
+  //                 	            t 	                	time
+  //                 	      |       	                	group separator
 
 //Key               	   Value           	   ≝Default          	Comment
 "label_line"        	: " Lines"         	, //" Lines"         	Label for the number of lines
