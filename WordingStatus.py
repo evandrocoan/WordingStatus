@@ -6,14 +6,15 @@ import re
 import time
 import threading
 
-from math import ceil as ceil
-from os.path import basename
+from math   	import ceil as ceil
+from os.path	import basename
 
-VIEW_SIZE_LIMIT = 4194304
 
-Pref  = {}
-g_sleepEvent = threading.Event()
-g_is_already_running = False
+VIEW_SIZE_LIMIT	= 4194304
+
+Pref                	= {}
+g_sleepEvent        	= threading.Event()
+g_is_already_running	= False
 
 
 def plugin_unloaded():
@@ -371,21 +372,16 @@ def display(view, word_count, char_count, line_count, word_count_line, char_coun
 def count_words(text_list):
   words_count = 0
 
-  wordRegex  = Pref.wordRegex
-  splitRegex = Pref.splitRegex
+  wordRegex 	= Pref.wordRegex
+  splitRegex	= Pref.splitRegex
 
   if splitRegex:
-
     for text in text_list:
       words = splitRegex(text)
-
       for word in words:
-
         if wordRegex(word):
           words_count += 1
-
   else:
-
     for text in text_list:
       words_count += len(text.split())
 
@@ -397,7 +393,6 @@ def count_chars(text_list):
 
   if Pref.char_ignore_whitespace:
     char_count = sum(sum(len(word) for word in words.split()) for words in text_list)
-
   else:
     char_count = sum(len(words) for words in text_list)
 
@@ -406,9 +401,7 @@ def count_chars(text_list):
 
 def get_active_view():
   window = sublime.active_window()
-
   if window:
      return window.active_view()
 
   return None
-
