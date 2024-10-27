@@ -248,8 +248,8 @@ class WordingStatusesView():
       for selection in selections:
         self.lines_contents.append(view.substr(view.line(selection.end())))
 
-    file_size_limit = Pref.file_size_limit
-    is_limited = view_size > file_size_limit
+    file_size_limit	= Pref.file_size_limit
+    is_limited     	= view_size > file_size_limit
 
     if is_limited:
       self.is_text_selected = False
@@ -267,8 +267,8 @@ class WordingStatusesView():
     if not self.is_enabled:
       return
 
-    Pref.start_time = time.perf_counter()
-    Pref.is_already_running = True
+    Pref.start_time        	= time.perf_counter()
+    Pref.is_already_running	= True
 
     view = self.view
     self.updateViewContents()
@@ -276,8 +276,8 @@ class WordingStatusesView():
     if self.syntax and self.syntax in Pref.strip:
 
       for regular_expression in Pref.strip[self.syntax]:
-        lines_count = len(self.contents)
-        lines_contents_count = len(self.lines_contents)
+        lines_count         	= len(self.contents)
+        lines_contents_count	= len(self.lines_contents)
 
         for selection_index in range(lines_count):
           self.contents[selection_index] = re.sub(regular_expression, '', self.contents[selection_index])
@@ -287,16 +287,12 @@ class WordingStatusesView():
 
     if Pref.enable_count_lines:
       self.line_count = view.rowcol(view.size())[0] + 1
-
     if Pref.enable_count_words:
       self.word_count = count_words(self.contents)
-
     if Pref.enable_count_chars:
       self.char_count = count_chars(self.contents)
-
     if Pref.enable_line_char_count:
       self.char_count_line = count_chars(self.lines_contents)
-
     if Pref.enable_line_word_count:
       self.word_count_line = count_words(self.lines_contents)
 
@@ -305,8 +301,8 @@ class WordingStatusesView():
   def displayCountResults(self):
     display(self.view, self.word_count, self.char_count, self.line_count, self.word_count_line, self.char_count_line)
 
-    Pref.elapsed_time = time.perf_counter() - Pref.start_time
-    Pref.is_already_running = False
+    Pref.elapsed_time      	= time.perf_counter() - Pref.start_time
+    Pref.is_already_running	= False
 
 
 def display(view, word_count, char_count, line_count, word_count_line, char_count_line):
@@ -330,19 +326,17 @@ def display(view, word_count, char_count, line_count, word_count_line, char_coun
     status.append("{:,}{}".format(char_count_line, Pref.label_char_in_line).replace(',',k_sep))
 
   if Pref.enable_count_pages and word_count > 0:
-
     if not Pref.page_count_mode_count_words or Pref.words_per_page < 1:
-      visible = view.visible_region()
-      rows_per_page = (view.rowcol(visible.end())[0]) - (view.rowcol(visible.begin())[0])
-      pages = ceil((view.rowcol(view.size()-1)[0] + 1) /  rows_per_page)
-      current_line = view.rowcol(view.sel()[0].begin())[0]+1
-      current_page = ceil(current_line / rows_per_page)
-
+      visible      	= view.visible_region()
+      rows_per_page	=      (view.rowcol(visible.end())[0]) - (view.rowcol(visible.begin())[0])
+      pages        	= ceil((view.rowcol(view.size()-1)[0] + 1) /  rows_per_page)
+      current_line 	=       view.rowcol(view.sel()[0].begin())[0]+1
+      current_page 	= ceil(current_line / rows_per_page)
     else:
-      pages = ceil(word_count / Pref.words_per_page)
-      rows = view.rowcol(view.size()-1)[0] + 1
-      current_line = view.rowcol(view.sel()[0].begin())[0]+1
-      current_page = ceil((current_line / Pref.words_per_page) / (rows / Pref.words_per_page))
+      pages       	= ceil(word_count / Pref.words_per_page)
+      rows        	= view.rowcol(view.size()-1)[0] + 1
+      current_line	= view.rowcol(view.sel()[0].begin())[0]+1
+      current_page	= ceil((current_line / Pref.words_per_page) / (rows / Pref.words_per_page))
 
     if pages > 1:
       status.append("{}{:,}/{:,}".format(Pref.label_page, current_page, pages).replace(',',k_sep))
