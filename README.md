@@ -71,6 +71,7 @@ See also:
 
 Menu `Sublime Text`>`Settings…`>`Package Settings`>`WordingStatus`>`Settings` opens both the default and user settings files, where you can see every option explained in comments and copy/change the ones you need to adjust.
 
+Or use the `Command Palette` commands `Preferences: WordingStatus Settings` or `WordingStatus Settings: User`/`WordingStatus Settings: Default`
 
 ## Inspiration
 
