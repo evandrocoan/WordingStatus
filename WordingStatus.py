@@ -21,7 +21,7 @@ def plugin_unloaded():
   global g_is_already_running
 
   g_is_already_running = False
-  sublime_settings.clear_on_change( 'WordingStatus' )
+  sublime_settings.clear_on_change('WordingStatus')
 
   for window in sublime.windows():
 
@@ -33,20 +33,20 @@ def plugin_loaded():
   global Pref
   global sublime_settings
 
-  sublime_settings = sublime.load_settings( 'WordingStatus.sublime-settings' )
+  sublime_settings = sublime.load_settings('WordingStatus.sublime-settings')
   Pref.load();
 
-  sublime_settings.clear_on_change( 'WordingStatus' )
-  sublime_settings.add_on_change( 'WordingStatus', lambda: Pref.load() )
+  sublime_settings.clear_on_change('WordingStatus')
+  sublime_settings.add_on_change('WordingStatus', lambda: Pref.load())
 
   # Initialize the WordingStatuses's countView attribute
-  WordingStatuses.setUpView( get_active_view() )
+  WordingStatuses.setUpView(get_active_view())
 
   if not g_is_already_running:
     g_sleepEvent.set()
 
     # Wait the Pref class to be loaded
-    sublime.set_timeout_async( configure_word_count, 5000 )
+    sublime.set_timeout_async(configure_word_count, 5000)
 
 
 def configure_word_count():
@@ -61,7 +61,7 @@ def configure_word_count():
   # is called to set the internal flag to true again.
   g_sleepEvent.clear()
 
-  thread = threading.Thread( target=word_count_loop )
+  thread = threading.Thread(target=word_count_loop)
   thread.start()
 
 
@@ -81,12 +81,12 @@ def word_count_loop():
       if g_sleepEvent.is_set():
         # set g_sleepEvent._flag, a.k.a., g_sleepEvent.is_set() to False
         g_sleepEvent.clear()
-        WordingStatuses.setUpView( WordingStatuses.activeView )
+        WordingStatuses.setUpView(WordingStatuses.activeView)
 
       WordingStatuses.doCounting()
 
-    # print( "word_count_loop, elapsed_time: %f microseconds" % ( Pref.elapsed_time * 1000 ) )
-    g_sleepEvent.wait( Pref.elapsed_time*100 if Pref.elapsed_time > mininum_time else default_time )
+    # print("word_count_loop, elapsed_time: %f microseconds" % (Pref.elapsed_time * 1000))
+    g_sleepEvent.wait(Pref.elapsed_time*100 if Pref.elapsed_time > mininum_time else default_time)
 
 
 class Pref():
@@ -96,7 +96,7 @@ class Pref():
     Pref.elapsed_time           = 1.4
     Pref.is_already_running     = False
 
-    Pref.wordRegex              = re.compile( sublime_settings.get('word_regexp', "^[^\w]?`*\w+[^\w]*$"), re.U )
+    Pref.wordRegex              = re.compile(sublime_settings.get('word_regexp', "^[^\w]?`*\w+[^\w]*$"), re.U)
     Pref.wordRegex              = Pref.wordRegex.match
     Pref.splitRegex             = sublime_settings.get('word_split', None)
 
@@ -123,15 +123,15 @@ class Pref():
     Pref.blacklist_syntaxes     = sublime_settings.get('blacklist_syntaxes', [])
     Pref.strip                  = sublime_settings.get('strip', [])
 
-    Pref.thousands_separator    = sublime_settings.get('thousands_separator'  , "." )
+    Pref.thousands_separator    = sublime_settings.get('thousands_separator'  , ".")
 
-    Pref.label_line             = sublime_settings.get('label_line'        , " Lines"          )
-    Pref.label_word             = sublime_settings.get('label_word'        , " Words"          )
-    Pref.label_char             = sublime_settings.get('label_char'        , " Chars"          )
-    Pref.label_word_in_line     = sublime_settings.get('label_word_in_line', " Words in lines" )
-    Pref.label_char_in_line     = sublime_settings.get('label_char_in_line', " Chars in lines" )
-    Pref.label_time             = sublime_settings.get('label_time'        , " reading time"   )
-    Pref.label_page             = sublime_settings.get('label_page'        , "Page "           )
+    Pref.label_line             = sublime_settings.get('label_line'        , " Lines"         )
+    Pref.label_word             = sublime_settings.get('label_word'        , " Words"         )
+    Pref.label_char             = sublime_settings.get('label_char'        , " Chars"         )
+    Pref.label_word_in_line     = sublime_settings.get('label_word_in_line', " Words in lines")
+    Pref.label_char_in_line     = sublime_settings.get('label_char_in_line', " Chars in lines")
+    Pref.label_time             = sublime_settings.get('label_time'        , " reading time"  )
+    Pref.label_page             = sublime_settings.get('label_page'        , "Page "          )
 
     Pref.page_count_mode_count_words = sublime_settings.get('page_count_mode_count_words', True)
 
@@ -154,14 +154,14 @@ class WordingStatuses(sublime_plugin.EventListener):
 
       for selection in selections:
 
-        if len( selection ):
+        if len(selection):
           WordingStatuses.countView.is_text_selected = True
           return
 
       WordingStatuses.countView.is_text_selected = False
 
   def on_activated_async(self, view):
-    # print( "on_activated_async, view_id: %d" % view.id() )
+    # print("on_activated_async, view_id: %d" % view.id())
     WordingStatuses.activeView = view
     g_sleepEvent.set()
 
@@ -186,17 +186,17 @@ class WordingStatuses(sublime_plugin.EventListener):
         view = _view
         view_settings = view.settings()
 
-    syntax, is_enabled = cls.should_run_with_syntax( view_settings )
+    syntax, is_enabled = cls.should_run_with_syntax(view_settings)
     view_id = view.id()
 
-    # print( "setUpView, view_id: %d" % view_id )
+    # print("setUpView, view_id: %d" % view_id)
     if view_id in wordCountViews:
       wordCountView = wordCountViews[view_id]
       wordCountView.syntax = syntax
       wordCountView.syntax = is_enabled
 
     else:
-      wordCountView = WordingStatusesView( view, syntax, is_enabled )
+      wordCountView = WordingStatusesView(view, syntax, is_enabled)
       wordCountViews[view_id] = wordCountView
 
     cls.countView = wordCountView
@@ -204,9 +204,9 @@ class WordingStatuses(sublime_plugin.EventListener):
   @staticmethod
   def should_run_with_syntax(view_settings):
     syntax = view_settings.get('syntax')
-    syntax = basename( syntax ).split( '.' )[0].lower() if syntax != None else "plain text"
+    syntax = basename(syntax).split('.')[0].lower() if syntax != None else "plain text"
 
-    if len( Pref.blacklist_syntaxes ) > 0:
+    if len(Pref.blacklist_syntaxes) > 0:
 
       for white in Pref.blacklist_syntaxes:
 
@@ -258,7 +258,7 @@ class WordingStatusesView():
       del self.lines_contents[:]
 
       for selection in selections:
-        self.lines_contents.append( view.substr( view.line( selection.end() ) ) )
+        self.lines_contents.append(view.substr(view.line(selection.end())))
 
     file_size_limit = Pref.file_size_limit
     is_limited = view_size > file_size_limit
@@ -269,10 +269,10 @@ class WordingStatusesView():
     if self.is_text_selected:
 
       for selection in selections:
-        self.contents.append( view.substr( selection ) )
+        self.contents.append(view.substr(selection))
 
     else:
-      self.contents.append( view.substr( sublime.Region( 0, file_size_limit if is_limited else view_size ) ) )
+      self.contents.append(view.substr(sublime.Region(0, file_size_limit if is_limited else view_size)))
 
   def startCounting(self):
 
@@ -288,34 +288,34 @@ class WordingStatusesView():
     if self.syntax and self.syntax in Pref.strip:
 
       for regular_expression in Pref.strip[self.syntax]:
-        lines_count = len( self.contents )
-        lines_contents_count = len( self.lines_contents )
+        lines_count = len(self.contents)
+        lines_contents_count = len(self.lines_contents)
 
-        for selection_index in range( lines_count ):
-          self.contents[selection_index] = re.sub( regular_expression, '', self.contents[selection_index] )
+        for selection_index in range(lines_count):
+          self.contents[selection_index] = re.sub(regular_expression, '', self.contents[selection_index])
 
-        for selection_index in range( lines_contents_count ):
-          self.lines_contents[selection_index] = re.sub( regular_expression, '', self.lines_contents[selection_index] )
+        for selection_index in range(lines_contents_count):
+          self.lines_contents[selection_index] = re.sub(regular_expression, '', self.lines_contents[selection_index])
 
     if Pref.enable_count_lines:
-      self.line_count = view.rowcol( view.size() )[0] + 1
+      self.line_count = view.rowcol(view.size())[0] + 1
 
     if Pref.enable_count_words:
-      self.word_count = count_words( self.contents )
+      self.word_count = count_words(self.contents)
 
     if Pref.enable_count_chars:
-      self.char_count = count_chars( self.contents )
+      self.char_count = count_chars(self.contents)
 
     if Pref.enable_line_char_count:
-      self.char_count_line = count_chars( self.lines_contents )
+      self.char_count_line = count_chars(self.lines_contents)
 
     if Pref.enable_line_word_count:
-      self.word_count_line = count_words( self.lines_contents )
+      self.word_count_line = count_words(self.lines_contents)
 
     self.displayCountResults()
 
   def displayCountResults(self):
-    display( self.view, self.word_count, self.char_count, self.line_count, self.word_count_line, self.char_count_line )
+    display(self.view, self.word_count, self.char_count, self.line_count, self.word_count_line, self.char_count_line)
 
     Pref.elapsed_time = time.perf_counter() - Pref.start_time
     Pref.is_already_running = False
@@ -323,30 +323,30 @@ class WordingStatusesView():
 
 def display(view, word_count, char_count, line_count, word_count_line, char_count_line):
   status  = []
-  seconds = int( word_count % Pref.readtime_wpm / ( Pref.readtime_wpm / 60 ) )
+  seconds = int(word_count % Pref.readtime_wpm / (Pref.readtime_wpm / 60))
   k_sep   = Pref.thousands_separator
 
   if line_count > 0:
-    status.append( "{:,}{}".format( line_count     , Pref.label_line         ).replace(',',k_sep) )
+    status.append("{:,}{}".format(line_count     , Pref.label_line        ).replace(',',k_sep))
 
   if word_count > 0:
-    status.append( "{:,}{}".format( word_count     , Pref.label_word         ).replace(',',k_sep) )
+    status.append("{:,}{}".format(word_count     , Pref.label_word        ).replace(',',k_sep))
 
   if char_count > 0:
-    status.append( "{:,}{}".format( char_count     , Pref.label_char         ).replace(',',k_sep) )
+    status.append("{:,}{}".format(char_count     , Pref.label_char        ).replace(',',k_sep))
 
   if word_count_line > 0:
-    status.append( "{:,}{}".format( word_count_line, Pref.label_word_in_line ).replace(',',k_sep) )
+    status.append("{:,}{}".format(word_count_line, Pref.label_word_in_line).replace(',',k_sep))
 
   if char_count_line > 0:
-    status.append( "{:,}{}".format( char_count_line, Pref.label_char_in_line ).replace(',',k_sep) )
+    status.append("{:,}{}".format(char_count_line, Pref.label_char_in_line).replace(',',k_sep))
 
   if Pref.enable_count_pages and word_count > 0:
 
     if not Pref.page_count_mode_count_words or Pref.words_per_page < 1:
       visible = view.visible_region()
       rows_per_page = (view.rowcol(visible.end())[0]) - (view.rowcol(visible.begin())[0])
-      pages = ceil((view.rowcol(view.size()-1)[0] + 1 ) /  rows_per_page)
+      pages = ceil((view.rowcol(view.size()-1)[0] + 1) /  rows_per_page)
       current_line = view.rowcol(view.sel()[0].begin())[0]+1
       current_page = ceil(current_line / rows_per_page)
 
@@ -357,15 +357,15 @@ def display(view, word_count, char_count, line_count, word_count_line, char_coun
       current_page = ceil((current_line / Pref.words_per_page) / (rows / Pref.words_per_page))
 
     if pages > 1:
-      status.append( "{}{:,}/{:,}".format( Pref.label_page, current_page, pages ).replace( ',', k_sep ) )
+      status.append("{}{:,}/{:,}".format(Pref.label_page, current_page, pages).replace(',', k_sep))
 
   if Pref.enable_readtime and seconds >= 1:
-    minutes = int( word_count / Pref.readtime_wpm )
-    status.append( "~{:,}m {:,}s{}".format( minutes, seconds, Pref.label_time ).replace( ',', k_sep ) )
+    minutes = int(word_count / Pref.readtime_wpm)
+    status.append("~{:,}m {:,}s{}".format(minutes, seconds, Pref.label_time).replace(',', k_sep))
 
-  status_text = ', '.join( status )
-  view.set_status( Pref.status_name, status_text )
-  # print( "view: %d, Setting status to: " % view.id() + status_text )
+  status_text = ', '.join(status)
+  view.set_status(Pref.status_name, status_text)
+  # print("view: %d, Setting status to: " % view.id() + status_text)
 
 
 def count_words(text_list):
@@ -377,17 +377,17 @@ def count_words(text_list):
   if splitRegex:
 
     for text in text_list:
-      words = splitRegex( text )
+      words = splitRegex(text)
 
       for word in words:
 
-        if wordRegex( word ):
+        if wordRegex(word):
           words_count += 1
 
   else:
 
     for text in text_list:
-      words_count += len( text.split() )
+      words_count += len(text.split())
 
   return words_count
 
@@ -396,10 +396,10 @@ def count_chars(text_list):
   char_count = 0
 
   if Pref.char_ignore_whitespace:
-    char_count = sum( sum( len( word ) for word in words.split() ) for words in text_list )
+    char_count = sum(sum(len(word) for word in words.split()) for words in text_list)
 
   else:
-    char_count = sum( len( words ) for words in text_list )
+    char_count = sum(len(words) for words in text_list)
 
   return char_count
 
