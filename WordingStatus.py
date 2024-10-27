@@ -1,4 +1,3 @@
-# reformatted/added spaces/icons to https://github.com/evandrocoan/WordingStatus
 import sublime
 import sublime_plugin
 
