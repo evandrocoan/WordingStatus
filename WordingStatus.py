@@ -74,6 +74,8 @@ def word_count_loop():
     # print("word_count_loop, elapsed_time: %f microseconds" % (Pref.elapsed_time * 1000))
     g_sleepEvent.wait(Pref.elapsed_time*100 if Pref.elapsed_time > mininum_time else default_time)
 
+re_group = re.compile(r'\|')
+valid_id = ['l','w','c','W','C','p','t']
 
 class Pref():
 
@@ -98,6 +100,9 @@ class Pref():
         for view in window.views():
           view.set_status(old_status_name,'');
 
+    Pref.status_template        = subl_setting.get('status_template'   , 'lwc|WC|p|t')
+    Pref.status_groups          = re.split(re_group,Pref.status_template) # [lwc,WC,p,t]
+
     Pref.enable_readtime        = subl_setting.get('enable_readtime'   , False)
     Pref.enable_count_lines     = subl_setting.get('enable_count_lines', False)
     Pref.enable_count_chars     = subl_setting.get('enable_count_chars', False)
@@ -118,6 +123,7 @@ class Pref():
     Pref.thousands_separator    = subl_setting.get('thousands_separator'   , ".")
     Pref.minute_separator       = subl_setting.get('minute_separator'      , " ")
     Pref.in_group_separator     = subl_setting.get('in_group_separator'    , " ")
+    Pref.group_separator        = subl_setting.get('group_separator'       , ", ")
 
     Pref.label_line             = subl_setting.get('label_line'        , " Lines"          )
     Pref.label_word             = subl_setting.get('label_word'        , " Words"          )
@@ -315,29 +321,19 @@ def display(view, word_count, char_count, line_count, word_count_line, char_coun
   k_sep  	= Pref.thousands_separator
 
   out_line,pos_line,out_word,pos_word,out_char,out_word_line,pos_word_line = '','','','','','',''
-  if line_count:
-    out_line	= "{:,}{}".format(line_count	,Pref.label_line	).replace(',',k_sep)
-    pos_line	= Pref.in_group_separator
-  if word_count:
-    out_word	= "{:,}{}".format(word_count	,Pref.label_word	).replace(',',k_sep)
-    pos_word	= Pref.in_group_separator
-  if char_count:
-    out_char	= "{:,}{}".format(char_count	,Pref.label_char	).replace(',',k_sep)
 
-  if word_count_line:
-    out_word_line	= "{:,}{}".format(word_count_line,Pref.label_word_in_line	).replace(',',k_sep)
-    pos_word_line	= Pref.in_group_separator
-  if char_count_line:
-    out_char_line	= "{:,}{}".format(char_count_line,Pref.label_char_in_line	).replace(',',k_sep)
+  out_str = dict()
 
-  if (line_count > 0 or
-      word_count > 0 or
-      char_count > 0):
-    status.append(out_line +pos_line+ out_word +pos_word+ out_char)
-
-  if (word_count_line > 0 or
-      char_count_line > 0):
-    status.append(out_word_line +pos_word_line+ out_char_line)
+  out_str['l']	= "{:,}{}".format(line_count     	,Pref.label_line        	).replace(',',k_sep) if line_count     	else ''
+  out_str['w']	= "{:,}{}".format(word_count     	,Pref.label_word        	).replace(',',k_sep) if word_count     	else ''
+  out_str['c']	= "{:,}{}".format(char_count     	,Pref.label_char        	).replace(',',k_sep) if char_count     	else ''
+  out_str['W']	= "{:,}{}".format(word_count_line	,Pref.label_word_in_line	).replace(',',k_sep) if word_count_line	else ''
+  out_str['C']	= "{:,}{}".format(char_count_line	,Pref.label_char_in_line	).replace(',',k_sep) if char_count_line	else ''
+  for  id_s in valid_id:
+    if id_s in out_str:
+      continue
+    else:
+      out_str[id_s] = '' # prefill to have all valid ids as keys
 
   if Pref.enable_count_pages and word_count > 0:
     if not Pref.page_count_mode_count_words or Pref.words_per_page < 1:
@@ -353,13 +349,22 @@ def display(view, word_count, char_count, line_count, word_count_line, char_coun
       current_page	= ceil((current_line / Pref.words_per_page) / (rows / Pref.words_per_page))
 
     if pages > 1:
-      status.append("{}{:,}/{:,}".format(Pref.label_page, current_page, pages).replace(',',k_sep))
+      out_str['p'] = "{}{:,}/{:,}".format(Pref.label_page, current_page, pages).replace(',',k_sep)
 
   if Pref.enable_readtime and seconds >= 1:
     minutes = int(word_count / Pref.readtime_wpm)
-    status.append("~{:,}m{}{:,}s{}".format( minutes, Pref.minute_separator, seconds, Pref.label_time).replace(',',k_sep))
+    out_str['t'] = "~{:,}m{}{:,}s{}".format( minutes, Pref.minute_separator, seconds, Pref.label_time).replace(',',k_sep)
 
-  status_text = ', '.join(status)
+  # print(f"out_str={out_str}")
+  for group in Pref.status_groups:
+    g_out = []
+    for i,id_s in enumerate(group):           # lwc
+      if  id_s in valid_id and out_str[id_s]: # l
+        g_out.append(out_str[id_s])           # ← line count
+    if g_out:
+      status.append((Pref.in_group_separator).join(g_out))
+
+  status_text = (Pref.group_separator).join(status)
   view.set_status(Pref.status_name, status_text)
   # print("view: %d, Setting status to: " % view.id() + status_text)
 
