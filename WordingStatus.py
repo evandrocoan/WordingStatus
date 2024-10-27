@@ -303,24 +303,38 @@ class WordingStatusesView():
 
 
 def display(view, word_count, char_count, line_count, word_count_line, char_count_line):
-  status  = []
-  seconds = int(word_count % Pref.readtime_wpm / (Pref.readtime_wpm / 60))
-  k_sep   = Pref.thousands_separator
+  status 	= []
+  seconds	= int(word_count % Pref.readtime_wpm / (Pref.readtime_wpm / 60))
+  k_sep  	= Pref.thousands_separator
 
-  if line_count > 0:
-    status.append("{:,}{}".format(line_count     , Pref.label_line        ).replace(',',k_sep))
+  out_line     	= "{:,}{}".format( line_count    ,Pref.label_line        ).replace(',',k_sep) if out_line      else ''
+  out_word     	= "{:,}{}".format( word_count    ,Pref.label_word        ).replace(',',k_sep) if out_word      else ''
+  out_char     	= "{:,}{}".format( char_count    ,Pref.label_char        ).replace(',',k_sep) if out_char      else ''
+  out_word_line	= "{:,}{}".format(word_count_line,Pref.label_word_in_line).replace(',',k_sep) if out_word_line else ''
+  out_char_line	= "{:,}{}".format(char_count_line,Pref.label_char_in_line).replace(',',k_sep) if out_char_line else ''
 
-  if word_count > 0:
-    status.append("{:,}{}".format(word_count     , Pref.label_word        ).replace(',',k_sep))
+  if   (line_count > 0 and
+        word_count > 0 and
+        char_count > 0):
+    status.append  (out_line +' '+ out_word +' '+ out_char)
+  elif (word_count > 0 and
+        char_count > 0):
+      status.append(               out_word +' '+ out_char)
+  else:
+    if  word_count > 0:
+      status.append(               out_word               )
+    if  char_count > 0:
+      status.append(                              out_char)
 
-  if char_count > 0:
-    status.append("{:,}{}".format(char_count     , Pref.label_char        ).replace(',',k_sep))
-
-  if word_count_line > 0:
-    status.append("{:,}{}".format(word_count_line, Pref.label_word_in_line).replace(',',k_sep))
-
-  if char_count_line > 0:
-    status.append("{:,}{}".format(char_count_line, Pref.label_char_in_line).replace(',',k_sep))
+  if        (word_count_line > 0 and
+             char_count_line > 0):
+    status.append(out_word_line +' '+ out_char_line)
+  elif (not (word_count_line > 0) and
+             char_count_line > 0):
+    status.append(out_char_line)
+  elif (not (char_count_line > 0) and
+             word_count_line > 0):
+    status.append(out_word_line)
 
   if Pref.enable_count_pages and word_count > 0:
     if not Pref.page_count_mode_count_words or Pref.words_per_page < 1:
