@@ -135,7 +135,8 @@ class WordingStatuses(sublime_plugin.ViewEventListener):
     if view_id in WordingStatuses.wordCountViews:
       del         WordingStatuses.wordCountViews[view_id]
 
-  def on_selection_modified_async(self, view):
+  def on_selection_modified_async(self):
+    view	= self.view
 
     if Pref.enable_count_words:
       selections = view.sel()
@@ -148,7 +149,8 @@ class WordingStatuses(sublime_plugin.ViewEventListener):
 
       WordingStatuses.countView.is_text_selected = False
 
-  def on_activated_async(self, view):
+  def on_activated_async(self):
+    view	= self.view
     # print("on_activated_async, view_id: %d" % view.id())
     WordingStatuses.activeView = view
     g_sleepEvent.set()
