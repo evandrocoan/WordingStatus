@@ -273,21 +273,21 @@ class WordingStatusesView():
     if self.syntax and self.syntax in Pref.strip:
 
       for regular_expression in Pref.strip[self.syntax]:
-        lines_count         	= len(self.contents)
+        lines_count         	= len(self.contents      )
         lines_contents_count	= len(self.lines_contents)
 
         for selection_index in range(lines_count):
-          self.contents[selection_index] = re.sub(regular_expression, '', self.contents[selection_index])
+          self.contents      [selection_index] = re.sub(regular_expression, '', self.contents      [selection_index])
 
         for selection_index in range(lines_contents_count):
           self.lines_contents[selection_index] = re.sub(regular_expression, '', self.lines_contents[selection_index])
 
     if Pref.enable_count_lines:
-      self.line_count = view.rowcol(view.size())[0] + 1
+      self.line_count      = view.rowcol(view.size())[0] + 1
     if Pref.enable_count_words:
-      self.word_count = count_words(self.contents)
+      self.word_count      = count_words(self.contents      )
     if Pref.enable_count_chars:
-      self.char_count = count_chars(self.contents)
+      self.char_count      = count_chars(self.contents      )
     if Pref.enable_line_char_count:
       self.char_count_line = count_chars(self.lines_contents)
     if Pref.enable_line_word_count:
