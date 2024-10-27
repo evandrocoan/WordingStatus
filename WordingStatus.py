@@ -116,6 +116,7 @@ class Pref():
     Pref.strip                  = subl_setting.get('strip'                 , [])
 
     Pref.thousands_separator    = subl_setting.get('thousands_separator'   , ".")
+    Pref.minute_separator       = subl_setting.get('minute_separator'      , " ")
 
     Pref.label_line             = subl_setting.get('label_line'        , " Lines"          )
     Pref.label_word             = subl_setting.get('label_word'        , " Words"          )
@@ -355,7 +356,7 @@ def display(view, word_count, char_count, line_count, word_count_line, char_coun
 
   if Pref.enable_readtime and seconds >= 1:
     minutes = int(word_count / Pref.readtime_wpm)
-    status.append("~{:,}m {:,}s{}".format( minutes, seconds, Pref.label_time).replace(',',k_sep))
+    status.append("~{:,}m{}{:,}s{}".format( minutes, Pref.minute_separator, seconds, Pref.label_time).replace(',',k_sep))
 
   status_text = ', '.join(status)
   view.set_status(Pref.status_name, status_text)
