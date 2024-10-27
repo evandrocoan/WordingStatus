@@ -1,31 +1,42 @@
-{//Key                       	  Value  	     |Default|	Comment
-"enable_readtime"            	: false  	, // |false|  	Allows you to control if the estimated reading time is enabled. Reading time is only displayed when there is a time > 1s
-"enable_count_words"         	: true   	, // |true|   	Display the number of words      in file
-"enable_count_lines"         	: true   	, // |true|   	Display the number of lines      in file
-"enable_count_chars"         	: true   	, // |true|   	Display the number of characters in file
-"enable_count_pages"         	: false  	, // |false|  	Display the number of pages      in file
-"words_per_page"             	: 360    	, // |360|    	Sets the number of words per page used to calculate number of pages
-"file_size_limit"            	: 4194304	, // |4194304|	The maximum characters a file to be computed can have
-"readtime_wpm"               	: 200    	, // |200|    	Sets the WPM to calculate the Estimated Reading Time for the file
-"char_ignore_whitespace"     	: true   	, // |true|   	Whether to skip whitespace for the character count
-"page_count_mode_count_words"	: false  	, // |false|  	Sets the page count mode to words per page
-"enable_line_word_count"     	: false  	, // |false|  	Display the count of words found on current line
-"enable_line_char_count"     	: false  	, // |false|  	Display the count of characters found on current line
-"whitelist_syntaxes"         	: []     	, // |[]|     	An array of syntax names that WordingStatus should run on
-                             	         	  //          	Example: ["Plain text", "Markdown"]	If the array is empty, like it is by default, WordingStatus will run on any syntax
-"blacklist_syntaxes"         	: []     	, // |[]|     	An array of syntax names that WordingStatus should not run on Example: ["Plain text", "Markdown"] If the array is empty, like it is by default, WordingStatus will run on any syntax
-"word_regexp"                	: ""     	, // |""|     	Word Regular expression. Defaults empty, an internal regular expression is used. If the portion of text matches this RegExp then the word is counted
-"word_split"                 	: ""     	, // |""|     	Split portions of text to test later as words with a Regular expression. Defaults to String.split() with no arguments, means that content will trim() and empty values (all whitespaces) are not used. In case of containing some value different than empty, the return of "re.findall" will be used
-"thousands_separator"        	: "."    	, // |"."|    	Thousands separator's symbol
-"status_order_prefix"        	: ""     	, // |""|     	Prefix the status name to change its order in the status bar, which uses alphabetical sorting
+{//Key                       	  Value  	   ≝Default	Comment
+"enable_readtime"            	: false  	, //false  	Allows you to control if the estimated reading time is enabled. Reading time is only displayed when there is a time > 1s
+"enable_count_words"         	: true   	, //true   	Display the number of words      in file
+"enable_count_lines"         	: true   	, //true   	Display the number of lines      in file
+"enable_count_chars"         	: true   	, //true   	Display the number of characters in file
+"enable_count_pages"         	: false  	, //false  	Display the number of pages      in file
+"words_per_page"             	: 360    	, //360    	Sets the number of words per page used to calculate number of pages
+"file_size_limit"            	: 4194304	, //4194304	The maximum characters a file to be computed can have
+"readtime_wpm"               	: 200    	, //200    	Sets the WPM to calculate the Estimated Reading Time for the file
+"char_ignore_whitespace"     	: true   	, //true   	Whether to skip whitespace for the character count
+"page_count_mode_count_words"	: false  	, //false  	Sets the page count mode to words per page
+"enable_line_word_count"     	: false  	, //false  	Display the count of words found on current line
+"enable_line_char_count"     	: false  	, //false  	Display the count of characters found on current line
+"whitelist_syntaxes"         	: []     	, //[]     	An array of syntax names that WordingStatus should run on
+                             	         	  //       	Example: ["Plain text", "Markdown"]	If the array is empty, like it is by default, WordingStatus will run on any syntax
+"blacklist_syntaxes"         	: []     	, //[]     	An array of syntax names that WordingStatus should not run on Example: ["Plain text", "Markdown"] If the array is empty, like it is by default, WordingStatus will run on any syntax
+"word_regexp"                	: ""     	, //""     	Word Regular expression. Defaults empty, an internal regular expression is used. If the portion of text matches this RegExp then the word is counted
+"word_split"                 	: ""     	, //""     	Split portions of text to test later as words with a Regular expression. Defaults to String.split() with no arguments, means that content will trim() and empty values (all whitespaces) are not used. In case of containing some value different than empty, the return of "re.findall" will be used
+"thousands_separator"        	: "."    	, //"."    	Thousands separator's symbol
+"minute_separator"           	: " "    	, //" "    	Symbol separating minutes and seconds
+"in_group_separator"         	: " "    	, //" "    	Symbol separating line/word/char counts
+"group_separator"            	: ", "   	, //", "   	Symbol separating groups
+// Reorder indicators
+"status_order_prefix"	: ""          	, //""          	Prefix the status name to change its order in the status bar, which uses alphabetical sorting
+"status_template"    	: "lwc|WC|p|t"	, //"lwc|WC|p|t"	Order of various counts in the statusbar (CaSe sensitive!)
+  //                 	   lwc        	                	line / word / char          counts
+  //                 	       WC     	                	       Word / Char per line counts
+  //                 	          p   	                	page
+  //                 	            t 	                	time
+  //                 	      |       	                	group separator
 
-"label_line"        	: " Lines"         	, // |" Lines"|         	Label for the number of lines
-"label_word"        	: " Words"         	, // |" Words"|         	Label for the number of words
-"label_char"        	: " Chars"         	, // |" Chars"|         	Label for the number of chars
-"label_word_in_line"	: " Words in lines"	, // |" Words in lines"|	Label for the number of words in lines
-"label_char_in_line"	: " Chars in lines"	, // |" Chars in lines"|	Label for the number of chars in lines
-"label_time"        	: " reading time"  	, // |" reading time"|  	Label for the reading time
-"label_page"        	: "Page "          	, // |"Page "|          	Label for the page number
+//Key               	   Value           	   ≝Default          	Comment
+"label_line"        	: " Lines"         	, //" Lines"         	Label for the number of lines
+"label_word"        	: " Words"         	, //" Words"         	Label for the number of words
+"label_char"        	: " Chars"         	, //" Chars"         	Label for the number of chars
+"label_word_in_line"	: " Words in lines"	, //" Words in lines"	Label for the number of words in lines
+"label_char_in_line"	: " Chars in lines"	, //" Chars in lines"	Label for the number of chars in lines
+"label_time"        	: " reading time"  	, //" reading time"  	Label for the reading time
+"label_page"        	: "Page "          	, //"Page "          	Label for the page number
 
 // Remove regex patterns by syntax. Split portions of text to test later as words with a Regular expression. Defaults to String.split() with no arguments, means that content will trim() and empty values (all whitespaces) are not used. In case of containing some value different than empty, the return of "re.findall" will be used
 "strip": { // Please use lowercase for the syntax names in the following section

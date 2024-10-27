@@ -1,5 +1,15 @@
 # Wording Status
 
+## Unreleased
+
+- Add `Command Palette` commands to open settings files `Preferences: WordingStatus Settings` or `WordingStatus Settings: User`/`WordingStatus Settings: Default`
+- 🐞 don't leave old statusbar messages when changing its position via `status_order_prefix`
+- moved to the new 3.8 Sublime Text plugin host
+- add `minute_separator` user setting for separating `5m 2s` in time
+- add `in_group_separator` user setting for separating line/word/char counts
+- add `group_separator` user setting for separating groups of counts (via a template)
+- add user settings to reorder count groups / individual counts via a `status_template` template string
+
 ## 2.0.1
 
 Created the setting `status_order_prefix` Evgeny (eugenesvk).
