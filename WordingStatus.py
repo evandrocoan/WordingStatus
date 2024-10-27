@@ -323,10 +323,11 @@ def display(view, word_count, char_count, line_count, word_count_line, char_coun
   if char_count_line:
     out_char_line	= "{:,}{}".format(char_count_line,Pref.label_char_in_line	).replace(',',k_sep)
 
-  if (line_count      > 0 or
-      word_count      > 0 or
-      char_count      > 0):
+  if (line_count > 0 or
+      word_count > 0 or
+      char_count > 0):
     status.append(out_line +pos_line+ out_word +pos_word+ out_char)
+
   if (word_count_line > 0 or
       char_count_line > 0):
     status.append(out_word_line +pos_word_line+ out_char_line)
