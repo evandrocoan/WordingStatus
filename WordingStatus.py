@@ -212,9 +212,9 @@ class WordingStatuses(sublime_plugin.ViewEventListener):
         if white == syntax:
           return syntax, True
 
-      return syntax, False
+      return     syntax, False
 
-    return syntax, True
+    return       syntax, True
 
 
 class WordingStatusesView():
@@ -388,7 +388,7 @@ def count_chars(text_list):
   if Pref.char_ignore_whitespace:
     char_count = sum(sum(len(word) for word in words.split()) for words in text_list)
   else:
-    char_count = sum(len(words) for words in text_list)
+    char_count = sum(                      len(words)         for words in text_list)
 
   return char_count
 
