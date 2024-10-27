@@ -1,4 +1,4 @@
-
+# reformatted/added spaces/icons to https://github.com/evandrocoan/WordingStatus
 import sublime
 import sublime_plugin
 
@@ -9,7 +9,6 @@ import threading
 from math   	import ceil as ceil
 from os.path	import basename
 
-
 VIEW_SIZE_LIMIT	= 4194304
 
 Pref                	= {}
@@ -18,14 +17,12 @@ g_is_already_running	= False
 
 
 def plugin_unloaded():
-  global Pref
   global g_is_already_running
 
   g_is_already_running = False
   subl_setting.clear_on_change('WordingStatus')
 
   for window in sublime.windows():
-
     for view in window.views():
       view.erase_status(Pref.status_name);
 
@@ -38,29 +35,23 @@ def plugin_loaded():
   Pref.load();
 
   subl_setting.clear_on_change('WordingStatus')
-  subl_setting.add_on_change('WordingStatus', lambda: Pref.load())
+  subl_setting.add_on_change(  'WordingStatus', lambda:Pref.load())
 
-  # Initialize the WordingStatuses's countView attribute
-  WordingStatuses.setUpView(get_active_view())
+  WordingStatuses.setUpView(get_active_view()) # Initialize the WordingStatuses's countView attribute
 
   if not g_is_already_running:
     g_sleepEvent.set()
-
-    # Wait the Pref class to be loaded
-    sublime.set_timeout_async(configure_word_count, 5000)
+    sublime.set_timeout_async(configure_word_count, 5000) # Wait the Pref class to be loaded
 
 
 def configure_word_count():
   """
     break/interrupt a time.sleep() in python
-    https://stackoverflow.com/questions/5114292/break-interrupt-a-time-sleep-in-python
-  """
+    https://stackoverflow.com/questions/5114292/break-interrupt-a-time-sleep-in-python """
   global g_is_already_running
   g_is_already_running = True
 
-  # Reset the internal flag to false. Subsequently, threads calling wait() will block until set()
-  # is called to set the internal flag to true again.
-  g_sleepEvent.clear()
+  g_sleepEvent.clear() # Reset the internal flag to false. Subsequently, threads calling wait() will block until set() is called to set the internal flag to true again.
 
   thread = threading.Thread(target=word_count_loop)
   thread.start()
@@ -71,16 +62,11 @@ def word_count_loop():
   default_time = 3.0
 
   while True:
-    # Stops the thread when the plugin is reloaded or unloaded
-    if not g_is_already_running:
+    if not g_is_already_running: # Stops the thread when the plugin is reloaded or unloaded
       break
 
-    # sleep time is adaptive, if takes more than `mininum_time` to calculate the word count,
-    # sleep_time becomes `elapsed_time*3`
-    if not Pref.is_already_running:
-
-      if g_sleepEvent.is_set():
-        # set g_sleepEvent._flag, a.k.a., g_sleepEvent.is_set() to False
+    if not Pref.is_already_running: # sleep time is adaptive, if takes more than `mininum_time` to calculate the word count, sleep_time becomes `elapsed_time*3`
+      if g_sleepEvent.is_set(): # set g_sleepEvent._flag, a.k.a., g_sleepEvent.is_set() to False
         g_sleepEvent.clear()
         WordingStatuses.setUpView(WordingStatuses.activeView)
 
@@ -97,7 +83,7 @@ class Pref():
     Pref.elapsed_time           = 1.4
     Pref.is_already_running     = False
 
-    Pref.wordRegex              = re.compile(subl_setting.get('word_regexp', "^[^\w]?`*\w+[^\w]*$"), re.U)
+    Pref.wordRegex              = re.compile(subl_setting.get('word_regexp',"^[^\w]?`*\w+[^\w]*$"), re.U)
     Pref.wordRegex              = Pref.wordRegex.match
     Pref.splitRegex             = subl_setting.get('word_split', None)
 
@@ -358,7 +344,7 @@ def display(view, word_count, char_count, line_count, word_count_line, char_coun
       current_page = ceil((current_line / Pref.words_per_page) / (rows / Pref.words_per_page))
 
     if pages > 1:
-      status.append("{}{:,}/{:,}".format(Pref.label_page, current_page, pages).replace(',', k_sep))
+      status.append("{}{:,}/{:,}".format(Pref.label_page, current_page, pages).replace(',',k_sep))
 
   if Pref.enable_readtime and seconds >= 1:
     minutes = int(word_count / Pref.readtime_wpm)
