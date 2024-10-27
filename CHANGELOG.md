@@ -5,6 +5,7 @@
 - Add `Command Palette` commands to open settings files `Preferences: WordingStatus Settings` or `WordingStatus Settings: User`/`WordingStatus Settings: Default`
 - 🐞 don't leave old statusbar messages when changing its position via `status_order_prefix`
 - moved to the new 3.8 Sublime Text plugin host
+- add `minute_separator` user setting for separatings `5m 2s` in time
 
 ## 2.0.1
 
