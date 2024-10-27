@@ -88,51 +88,52 @@ class Pref():
     Pref.splitRegex             = subl_setting.get('word_split', None)
 
     if Pref.splitRegex:
-      Pref.splitRegex         = re.compile(Pref.splitRegex, re.U)
-      Pref.splitRegex         = Pref.splitRegex.findall
+      Pref.splitRegex           = re.compile(Pref.splitRegex, re.U)
+      Pref.splitRegex           = Pref.splitRegex.findall
 
     Pref.status_name            = subl_setting.get('status_order_prefix', '') + 'WordCountStatus'
 
-    Pref.enable_readtime        = subl_setting.get('enable_readtime', False)
+    Pref.enable_readtime        = subl_setting.get('enable_readtime'   , False)
     Pref.enable_count_lines     = subl_setting.get('enable_count_lines', False)
     Pref.enable_count_chars     = subl_setting.get('enable_count_chars', False)
     Pref.enable_count_pages     = subl_setting.get('enable_count_pages', False)
     Pref.enable_count_words     = subl_setting.get('enable_count_words', True)
-    Pref.file_size_limit        = subl_setting.get('file_size_limit', VIEW_SIZE_LIMIT)
+    Pref.file_size_limit        = subl_setting.get('file_size_limit'   , VIEW_SIZE_LIMIT)
 
     Pref.enable_line_word_count = subl_setting.get('enable_line_word_count', False)
     Pref.enable_line_char_count = subl_setting.get('enable_line_char_count', False)
 
-    Pref.readtime_wpm           = subl_setting.get('readtime_wpm', 200)
-    Pref.words_per_page         = subl_setting.get('words_per_page', 300)
+    Pref.readtime_wpm           = subl_setting.get('readtime_wpm'          , 200)
+    Pref.words_per_page         = subl_setting.get('words_per_page'        , 300)
     Pref.char_ignore_whitespace = subl_setting.get('char_ignore_whitespace', True)
-    Pref.whitelist_syntaxes     = subl_setting.get('whitelist_syntaxes', [])
-    Pref.blacklist_syntaxes     = subl_setting.get('blacklist_syntaxes', [])
-    Pref.strip                  = subl_setting.get('strip', [])
+    Pref.whitelist_syntaxes     = subl_setting.get('whitelist_syntaxes'    , [])
+    Pref.blacklist_syntaxes     = subl_setting.get('blacklist_syntaxes'    , [])
+    Pref.strip                  = subl_setting.get('strip'                 , [])
 
-    Pref.thousands_separator    = subl_setting.get('thousands_separator'  , ".")
+    Pref.thousands_separator    = subl_setting.get('thousands_separator'   , ".")
 
-    Pref.label_line             = subl_setting.get('label_line'        , " Lines"         )
-    Pref.label_word             = subl_setting.get('label_word'        , " Words"         )
-    Pref.label_char             = subl_setting.get('label_char'        , " Chars"         )
-    Pref.label_word_in_line     = subl_setting.get('label_word_in_line', " Words in lines")
-    Pref.label_char_in_line     = subl_setting.get('label_char_in_line', " Chars in lines")
-    Pref.label_time             = subl_setting.get('label_time'        , " reading time"  )
-    Pref.label_page             = subl_setting.get('label_page'        , "Page "          )
+    Pref.label_line             = subl_setting.get('label_line'        , " Lines"          )
+    Pref.label_word             = subl_setting.get('label_word'        , " Words"          )
+    Pref.label_char             = subl_setting.get('label_char'        , " Chars"          )
+    Pref.label_word_in_line     = subl_setting.get('label_word_in_line', " Words in lines" )
+    Pref.label_char_in_line     = subl_setting.get('label_char_in_line', " Chars in lines" )
+    Pref.label_time             = subl_setting.get('label_time'        , " reading time"   )
+    Pref.label_page             = subl_setting.get('label_page'        , "Page "           )
 
     Pref.page_count_mode_count_words = subl_setting.get('page_count_mode_count_words', True)
 
 
-class WordingStatuses(sublime_plugin.EventListener):
-  countView = None
-  activeView = None
-  wordCountViews = {}
+class WordingStatuses(sublime_plugin.ViewEventListener):
+  countView     	= None
+  activeView    	= None
+  wordCountViews	= {}
 
-  def on_close(self, view):
-    view_id = view.id()
+  def on_close(self):
+    view   	= self.view
+    view_id	= view.id()
 
     if view_id in WordingStatuses.wordCountViews:
-      del WordingStatuses.wordCountViews[view_id]
+      del         WordingStatuses.wordCountViews[view_id]
 
   def on_selection_modified_async(self, view):
 
